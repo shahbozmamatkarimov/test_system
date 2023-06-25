@@ -46,6 +46,12 @@ export class StaffService {
       const is_exist_phone = await this.staffRepository.findOne({
         where: { phone_number: createStaffDto.phone_number },
       });
+      let hashed_password: string;
+      try {
+        hashed_password = await hash(createStaffDto.password, 7);
+      } catch (error) {
+        throw new BadRequestException(error.message);
+      }
       if (is_exist_phone) {
         throw new BadRequestException('Phone number already exists!');
       }
@@ -53,12 +59,6 @@ export class StaffService {
         let image_name: string;
         try {
           image_name = await this.fileService.createFile(image);
-        } catch (error) {
-          throw new BadRequestException(error.message);
-        }
-        let hashed_password: string;
-        try {
-          hashed_password = await hash(createStaffDto.password, 7);
         } catch (error) {
           throw new BadRequestException(error.message);
         }
@@ -91,12 +91,6 @@ export class StaffService {
         await staff.save();
         staff.groups = [group];
         return { message: 'Staff created successfully', staff };
-      }
-      let hashed_password: string;
-      try {
-        hashed_password = await hash(createStaffDto.password, 7);
-      } catch (error) {
-        throw new BadRequestException(error.message);
       }
       const staff = await this.staffRepository.create({
         ...createStaffDto,
