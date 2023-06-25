@@ -49,11 +49,48 @@ export class StaffService {
       if (is_exist_phone) {
         throw new BadRequestException('Phone number already exists!');
       }
-      let image_name: string;
-      try {
-        image_name = await this.fileService.createFile(image);
-      } catch (error) {
-        throw new BadRequestException(error.message);
+      if (image) {
+        let image_name: string;
+        try {
+          image_name = await this.fileService.createFile(image);
+        } catch (error) {
+          throw new BadRequestException(error.message);
+        }
+        let hashed_password: string;
+        try {
+          hashed_password = await hash(createStaffDto.password, 7);
+        } catch (error) {
+          throw new BadRequestException(error.message);
+        }
+        const staff = await this.staffRepository.create({
+          ...createStaffDto,
+          hashed_password,
+          image: image_name,
+        });
+        const role = await this.roleService.findByRole(createStaffDto.role);
+        if (!role) {
+          throw new BadRequestException('Role not found!');
+        }
+        await staff.$set('roles', [role.id]);
+        await staff.save();
+        staff.roles = [role];
+        const subject = await this.subjectService.findByTitle(
+          createStaffDto.subject,
+        );
+        if (!subject) {
+          throw new BadRequestException('Subject not found!');
+        }
+        await staff.$set('subjects', [subject.id]);
+        await staff.save();
+        staff.subjects = [subject];
+        const group = await this.groupService.findByName(createStaffDto.group);
+        if (!group) {
+          throw new BadRequestException('Group not found!');
+        }
+        await staff.$set('groups', [group.id]);
+        await staff.save();
+        staff.groups = [group];
+        return { message: 'Staff created successfully', staff };
       }
       let hashed_password: string;
       try {
@@ -64,7 +101,6 @@ export class StaffService {
       const staff = await this.staffRepository.create({
         ...createStaffDto,
         hashed_password,
-        image: image_name,
       });
       const role = await this.roleService.findByRole(createStaffDto.role);
       if (!role) {
@@ -89,7 +125,6 @@ export class StaffService {
       await staff.$set('groups', [group.id]);
       await staff.save();
       staff.groups = [group];
-      return { message: 'Staff created successfully', staff };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
