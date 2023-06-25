@@ -52,16 +52,41 @@ export class StudentService {
       } catch (error) {
         throw new BadRequestException(error.message);
       }
-      let image_name: string;
-      try {
-        image_name = await this.fileService.createFile(image);
-      } catch (error) {
-        throw new BadRequestException(error.message);
+      if (image) {
+        let image_name: string;
+        try {
+          image_name = await this.fileService.createFile(image);
+        } catch (error) {
+          throw new BadRequestException(error.message);
+        }
+        const new_student = await this.studentRepository.create({
+          ...registerDto,
+          hashed_password,
+          image: image_name,
+        });
+        const jwt_payload = {
+          id: new_student.id,
+          is_student: new_student.is_student,
+        };
+        let token: any;
+        try {
+          token = await generateToken(jwt_payload, this.jwtService);
+        } catch (error) {
+          throw new BadRequestException(error.message);
+        }
+        try {
+          await writeToCookie(token.refresh_token, res);
+        } catch (error) {
+          throw new BadRequestException(error.message);
+        }
+        return {
+          acces_token: token.access_token,
+          student: new_student,
+        };
       }
       const new_student = await this.studentRepository.create({
         ...registerDto,
         hashed_password,
-        image: image_name,
       });
       const jwt_payload = {
         id: new_student.id,
