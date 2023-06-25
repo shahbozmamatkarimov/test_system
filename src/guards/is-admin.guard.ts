@@ -38,7 +38,7 @@ export class IsAdminGuard implements CanActivate {
         message: 'Token expired!',
       });
     }
-    if (!req.user.username || req.user.username != 'admin01') {
+    if (!req.user.username) {
       throw new UnauthorizedException('You are not admin!');
     }
     return true;
