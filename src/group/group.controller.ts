@@ -13,15 +13,14 @@ import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { GroupDateDto } from './dto/group-date.dto';
-import { StaffAdminGuard } from 'src/guards/staff-is_admin.guard';
-
+import { IsAdminGuard } from '../guards/is-admin.guard';
 @ApiTags('groups')
 @Controller('group')
 export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 
   @ApiOperation({ summary: 'create a new group' })
-  @UseGuards(StaffAdminGuard)
+  @UseGuards(IsAdminGuard)
   @Post()
   create(@Body() createGroupDto: CreateGroupDto) {
     return this.groupService.create(createGroupDto);
@@ -46,21 +45,21 @@ export class GroupController {
   }
 
   @ApiOperation({ summary: 'get group by id' })
-  @UseGuards(StaffAdminGuard)
+  @UseGuards(IsAdminGuard)
   @Get(':id')
   findById(@Param('id') id: number) {
     return this.groupService.findById(id);
   }
 
   @ApiOperation({ summary: 'udpate group by id' })
-  @UseGuards(StaffAdminGuard)
+  @UseGuards(IsAdminGuard)
   @Patch(':id')
   update(@Param('id') id: number, @Body() updateGroupDto: UpdateGroupDto) {
     return this.groupService.update(id, updateGroupDto);
   }
 
   @ApiOperation({ summary: 'delete group by id' })
-  @UseGuards(StaffAdminGuard)
+  @UseGuards(IsAdminGuard)
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.groupService.remove(id);
