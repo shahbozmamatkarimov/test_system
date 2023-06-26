@@ -63,10 +63,10 @@ export class RegisterDto {
   password: string;
 
   @ApiProperty({
-    type: 'number',
+    type: 'string',
     example: '1',
     description: "student's group id",
   })
   @IsNotEmpty()
-  group_id: number;
+  group_id: string;
 }

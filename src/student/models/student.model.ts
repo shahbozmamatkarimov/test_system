@@ -81,10 +81,10 @@ export class Student extends Model<Student, StudentsAttributes> {
 
   @ForeignKey(() => Group)
   @Column({
-    type: DataType.INTEGER,
+    type: DataType.STRING,
     allowNull: false,
   })
-  group_id: number;
+  group_id: string;
 
   @BelongsTo(() => Group)
   group: Group;

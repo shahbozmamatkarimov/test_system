@@ -19,6 +19,7 @@ export class Role extends Model<Role, RoleAttributes> {
   @Column({
     type: DataType.STRING,
     allowNull: false,
+    unique: true,
   })
   name: string;
 

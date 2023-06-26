@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class UpdateRoleDto {
   @ApiProperty({
@@ -6,12 +7,16 @@ export class UpdateRoleDto {
     example: 'teacher',
     description: 'new role',
   })
-  name?: string;
+  @IsNotEmpty()
+  @IsString()
+  name: string;
 
   @ApiProperty({
     type: 'string',
     example: 'this is a first teacher',
     description: 'new description of the new role',
   })
-  description?: string;
+  @IsNotEmpty()
+  @IsString()
+  description: string;
 }
