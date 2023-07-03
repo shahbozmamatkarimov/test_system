@@ -3,16 +3,12 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Student } from './models/student.model';
 import { FilesService } from 'src/files/files.service';
 import { JwtService } from '@nestjs/jwt';
-import { UpdateStudentDto } from './dto/update-student.dto';
-import { RegisterDto } from './dto/register.dto';
 import { hash, compare } from 'bcrypt';
 import { Response } from 'express';
 import { generateToken, writeToCookie } from 'src/utils/token';
 import { LoginDto } from './dto/login.dto';
-import { EmailDto } from './dto/email.dto';
-import { FirstNameDto } from './dto/firstname.dto';
-import { LastNameDto } from './dto/lastname.dto';
-import { UsernameDto } from './dto/username.dto';
+import { StudentDto } from './dto/student.dto';
+import { v4 } from 'uuid';
 
 @Injectable()
 export class StudentService {
@@ -22,33 +18,37 @@ export class StudentService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async register(
-    registerDto: RegisterDto,
-    image: any,
-    res: Response,
-  ): Promise<object> {
+  async create(studentDto: StudentDto, image: any): Promise<object> {
     try {
+      const { login, email, phone_number, telegram_username } = studentDto;
+      const is_exist_login = await this.studentRepository.findOne({
+        where: { login },
+      });
+      if (is_exist_login) {
+        throw new BadRequestException('Bunday login mavjud!');
+      }
       const is_exist_email = await this.studentRepository.findOne({
-        where: { email: registerDto.email },
+        where: { email },
       });
       if (is_exist_email) {
-        throw new BadRequestException('Email already exists!');
-      }
-      const is_exist_username = await this.studentRepository.findOne({
-        where: { username: registerDto.username },
-      });
-      if (is_exist_username) {
-        throw new BadRequestException('Username already exists!');
+        throw new BadRequestException('Bunday email mavjud!');
       }
       const is_exist_phone = await this.studentRepository.findOne({
-        where: { phone_number: registerDto.phone_number },
+        where: { phone_number },
       });
       if (is_exist_phone) {
-        throw new BadRequestException('Phone number already exists!');
+        throw new BadRequestException('Bunday telefon raqam mavjud!');
       }
+      const is_exist_telegram = await this.studentRepository.findOne({
+        where: { telegram_username },
+      });
+      if (is_exist_telegram) {
+        throw new BadRequestException('Bunday telegram username mavjud!');
+      }
+      const id: string = v4();
       let hashed_password: string;
       try {
-        hashed_password = await hash(registerDto.password, 7);
+        hashed_password = await hash(studentDto.password, 7);
       } catch (error) {
         throw new BadRequestException(error.message);
       }
@@ -59,53 +59,25 @@ export class StudentService {
         } catch (error) {
           throw new BadRequestException(error.message);
         }
-        const new_student = await this.studentRepository.create({
-          ...registerDto,
+        const student = await this.studentRepository.create({
+          id,
           hashed_password,
           image: image_name,
+          ...studentDto,
         });
-        const jwt_payload = {
-          id: new_student.id,
-          is_student: new_student.is_student,
-        };
-        let token: any;
-        try {
-          token = await generateToken(jwt_payload, this.jwtService);
-        } catch (error) {
-          throw new BadRequestException(error.message);
-        }
-        try {
-          await writeToCookie(token.refresh_token, res);
-        } catch (error) {
-          throw new BadRequestException(error.message);
-        }
         return {
-          acces_token: token.access_token,
-          student: new_student,
+          message: "Talaba ro'yxatga qo'shildi",
+          student_id: student.id,
         };
       }
-      const new_student = await this.studentRepository.create({
-        ...registerDto,
+      const student = await this.studentRepository.create({
+        id,
         hashed_password,
+        ...studentDto,
       });
-      const jwt_payload = {
-        id: new_student.id,
-        is_student: new_student.is_student,
-      };
-      let token: any;
-      try {
-        token = await generateToken(jwt_payload, this.jwtService);
-      } catch (error) {
-        throw new BadRequestException(error.message);
-      }
-      try {
-        await writeToCookie(token.refresh_token, res);
-      } catch (error) {
-        throw new BadRequestException(error.message);
-      }
       return {
-        acces_token: token.access_token,
-        student: new_student,
+        message: "Talaba ro'yxatga qo'shildi",
+        student_id: student.id,
       };
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -114,25 +86,26 @@ export class StudentService {
 
   async login(loginDto: LoginDto, res: Response): Promise<object> {
     try {
-      const { email, password } = loginDto;
+      const { login, password } = loginDto;
       const student = await this.studentRepository.findOne({
-        where: { email },
+        where: { login },
       });
       if (!student) {
-        throw new BadRequestException('Email not found!');
+        throw new BadRequestException('Login mos kelmadi!');
       }
       let is_match_pass: boolean;
       try {
         is_match_pass = await compare(password, student.hashed_password);
         if (!is_match_pass) {
-          throw new BadRequestException('Wrong password!');
+          throw new BadRequestException('Parol mos kelmadi!');
         }
       } catch (error) {
         throw new BadRequestException(error.message);
       }
+      student.is_active = true;
       const jwt_payload = {
         id: student.id,
-        is_active: student.is_student,
+        is_active: student.is_active,
       };
       let token: any;
       try {
@@ -146,8 +119,9 @@ export class StudentService {
         throw new BadRequestException(error.message);
       }
       return {
+        message: 'Talaba tizimga kirdi',
+        id: student.id,
         access_token: token.access_token,
-        student,
       };
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -164,10 +138,12 @@ export class StudentService {
       } catch (error) {
         throw new BadRequestException(error.message);
       }
+      await this.studentRepository.update(
+        { is_active: false },
+        { where: { id: check.id }, returning: true },
+      );
       res.clearCookie(refresh_token);
-      return {
-        message: 'Student logged out successfully',
-      };
+      return { message: 'Talaba tizimda chiqdi' };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -179,7 +155,7 @@ export class StudentService {
         include: { all: true },
       });
       if (!students.length) {
-        throw new BadRequestException('Students not found!');
+        throw new BadRequestException("Talabalar ro'yxati bo'sh!");
       }
       return students;
     } catch (error) {
@@ -187,14 +163,14 @@ export class StudentService {
     }
   }
 
-  async findByEmail(email: EmailDto): Promise<Student> {
+  async findById(id: string): Promise<Student> {
     try {
       const student = await this.studentRepository.findOne({
-        where: { email: email.email },
+        where: { id },
         include: { all: true },
       });
       if (!student) {
-        throw new BadRequestException('Student not found!');
+        throw new BadRequestException('Talaba topilmadi!');
       }
       return student;
     } catch (error) {
@@ -202,14 +178,14 @@ export class StudentService {
     }
   }
 
-  async findByFirstName(first_name: FirstNameDto): Promise<Student> {
+  async findByLogin(login: string): Promise<Student> {
     try {
       const student = await this.studentRepository.findOne({
-        where: { first_name: first_name.first_name },
+        where: { login },
         include: { all: true },
       });
       if (!student) {
-        throw new BadRequestException('Student not found!');
+        throw new BadRequestException('Talaba topilmadi!');
       }
       return student;
     } catch (error) {
@@ -217,14 +193,14 @@ export class StudentService {
     }
   }
 
-  async findByLastName(last_name: LastNameDto): Promise<Student> {
+  async findByEmail(email: string): Promise<Student> {
     try {
       const student = await this.studentRepository.findOne({
-        where: { last_name: last_name.last_name },
+        where: { email },
         include: { all: true },
       });
       if (!student) {
-        throw new BadRequestException('Student not found!');
+        throw new BadRequestException('Talaba topilmadi!');
       }
       return student;
     } catch (error) {
@@ -232,28 +208,14 @@ export class StudentService {
     }
   }
 
-  async findByUsername(username: UsernameDto): Promise<Student> {
+  async findByName(full_name: string): Promise<Student> {
     try {
       const student = await this.studentRepository.findOne({
-        where: { username: username.username },
+        where: { full_name },
         include: { all: true },
       });
       if (!student) {
-        throw new BadRequestException('Student not found!');
-      }
-      return student;
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
-  }
-
-  async findById(id: number): Promise<Student> {
-    try {
-      const student = await this.studentRepository.findByPk(id, {
-        include: { all: true },
-      });
-      if (!student) {
-        throw new BadRequestException('Student not found!');
+        throw new BadRequestException('Talaba topilmadi!');
       }
       return student;
     } catch (error) {
@@ -262,11 +224,40 @@ export class StudentService {
   }
 
   async update(
-    id: number,
-    updateStudentDto: UpdateStudentDto,
+    id: string,
+    studentDto: StudentDto,
     image?: any,
   ): Promise<object> {
     try {
+      const student = await this.studentRepository.findOne({ where: { id } });
+      if (!student) {
+        throw new BadRequestException('Talaba topilmadi!');
+      }
+      const { login, email, phone_number, telegram_username } = studentDto;
+      const is_exist_login = await this.studentRepository.findOne({
+        where: { login },
+      });
+      if (is_exist_login) {
+        throw new BadRequestException('Bunday login mavjud!');
+      }
+      const is_exist_email = await this.studentRepository.findOne({
+        where: { email },
+      });
+      if (is_exist_email) {
+        throw new BadRequestException('Bunday email mavjud!');
+      }
+      const is_exist_phone = await this.studentRepository.findOne({
+        where: { phone_number },
+      });
+      if (is_exist_phone) {
+        throw new BadRequestException('Bunday telefon raqam mavjud!');
+      }
+      const is_exist_telegram = await this.studentRepository.findOne({
+        where: { telegram_username },
+      });
+      if (is_exist_telegram) {
+        throw new BadRequestException('Bunday telegram username mavjud!');
+      }
       if (image) {
         let image_name: string;
         try {
@@ -274,44 +265,30 @@ export class StudentService {
         } catch (error) {
           throw new BadRequestException(error.message);
         }
-        const student = await this.studentRepository.update(
-          { ...updateStudentDto, image: image_name },
+        await this.studentRepository.update(
+          { ...studentDto, image: image_name },
           { where: { id }, returning: true },
         );
-        if (!student[1].length) {
-          throw new BadRequestException('Student not found!');
-        }
-        return {
-          message: 'Student updated succesfully',
-          student: student[1][0],
-        };
+        return { message: "Talaba ma'lumotlari o'zgartirildi" };
       }
-      const student = await this.studentRepository.update(updateStudentDto, {
+      await this.studentRepository.update(studentDto, {
         where: { id },
         returning: true,
       });
-      if (!student[1].length) {
-        throw new BadRequestException('Student not found!');
-      }
-      return {
-        message: 'Student updated succesfully',
-        student: student[1][0],
-      };
+      return { message: "Talaba ma'lumotlari o'zgartirildi" };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  async remove(id: number): Promise<object> {
+  async remove(id: string): Promise<object> {
     try {
-      const student = await this.studentRepository.findByPk(id, {
-        include: { all: true },
-      });
+      const student = await this.studentRepository.findOne({ where: { id } });
       if (!student) {
-        throw new BadRequestException('Student not found!');
+        throw new BadRequestException('Talaba topilmadi!');
       }
       await this.studentRepository.destroy({ where: { id } });
-      return { message: 'Student deleted successfully', student };
+      return { message: "Talaba ro'yxatdan o'chirildi" };
     } catch (error) {
       throw new BadRequestException(error.message);
     }

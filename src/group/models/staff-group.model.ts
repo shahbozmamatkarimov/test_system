@@ -19,13 +19,13 @@ export class StaffGroup extends Model<StaffGroup> {
 
   @ForeignKey(() => Staff)
   @Column({
-    type: DataType.INTEGER,
+    type: DataType.STRING,
   })
-  staff_id: number;
+  staff_id: string;
 
   @ForeignKey(() => Group)
   @Column({
     type: DataType.INTEGER,
   })
-  group_id: number;
+  group_id: number; 
 }

@@ -3,10 +3,13 @@ import {
   Column,
   DataType,
   ForeignKey,
+  HasMany,
   Model,
   Table,
 } from 'sequelize-typescript';
+import { Question } from 'src/question/models/question.model';
 import { Subject } from 'src/subject/models/subject.model';
+import { TestResult } from 'src/test-result/models/test-result.model';
 
 interface TestGroupAttributes {
   test_count: number;
@@ -30,10 +33,10 @@ export class TestGroup extends Model<TestGroup, TestGroupAttributes> {
   test_count: number;
 
   @Column({
-    type: DataType.STRING,
+    type: DataType.INTEGER,
     allowNull: false,
   })
-  test_time: string;
+  minute: number;
 
   @ForeignKey(() => Subject)
   @Column({
@@ -44,4 +47,10 @@ export class TestGroup extends Model<TestGroup, TestGroupAttributes> {
 
   @BelongsTo(() => Subject)
   subject: Subject;
+
+  @HasMany(() => Question)
+  questions: Question[];
+
+  @HasMany(() => TestResult)
+  test_results: TestResult[];
 }

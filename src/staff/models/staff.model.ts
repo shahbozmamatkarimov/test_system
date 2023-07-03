@@ -2,7 +2,6 @@ import {
   BelongsToMany,
   Column,
   DataType,
-  ForeignKey,
   Model,
   Table,
 } from 'sequelize-typescript';
@@ -14,6 +13,7 @@ import { StaffSubject } from 'src/subject/models/staff-subject.model';
 import { Subject } from 'src/subject/models/subject.model';
 
 interface StaffAttributes {
+  id: string;
   full_name: string;
   image: string;
   phone_number: string;
@@ -26,9 +26,10 @@ interface StaffAttributes {
 @Table({ tableName: 'staff' })
 export class Staff extends Model<Staff, StaffAttributes> {
   @Column({
-    type: DataType.INTEGER,
-    autoIncrement: true,
+    type: DataType.STRING,
     primaryKey: true,
+    allowNull: false,
+    unique: true,
   })
   id: number;
 
@@ -70,6 +71,7 @@ export class Staff extends Model<Staff, StaffAttributes> {
 
   @Column({
     type: DataType.STRING,
+    unique: true,
   })
   telegram_username: string;
 

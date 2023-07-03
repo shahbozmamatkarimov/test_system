@@ -25,7 +25,7 @@ export class StaffRole extends Model<StaffRole> {
 
   @ForeignKey(() => Staff)
   @Column({
-    type: DataType.INTEGER,
+    type: DataType.STRING,
   })
-  staff_id: number;
+  staff_id: string;
 }

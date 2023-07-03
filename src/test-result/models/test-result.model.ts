@@ -10,8 +10,9 @@ import { Student } from 'src/student/models/student.model';
 import { TestGroup } from 'src/test-group/models/test-group.model';
 
 interface TestResultAttributes {
-  student_id: number;
+  student_id: string;
   test_group_id: number;
+  test_result: string;
   correct_count: number;
 }
 
@@ -24,18 +25,12 @@ export class TestResult extends Model<TestResult, TestResultAttributes> {
   })
   id: number;
 
-  @Column({
-    type: DataType.INTEGER,
-    allowNull: false,
-  })
-  correct_count: number;
-
   @ForeignKey(() => Student)
   @Column({
-    type: DataType.INTEGER,
+    type: DataType.STRING,
     allowNull: false,
   })
-  student_id: number;
+  student_id: string;
 
   @ForeignKey(() => TestGroup)
   @Column({
@@ -43,6 +38,18 @@ export class TestResult extends Model<TestResult, TestResultAttributes> {
     allowNull: false,
   })
   test_group_id: number;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  test_result: string;
+
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  correct_answers: number;
 
   @BelongsTo(() => Student)
   student: Student;

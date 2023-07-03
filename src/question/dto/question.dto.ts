@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
-export class CreateQuestionDto {
+export class QuestionDto {
   @ApiProperty({
     type: 'string',
     example: 'How many data types are there in javascript?',

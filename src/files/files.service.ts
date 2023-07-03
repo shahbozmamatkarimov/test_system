@@ -16,7 +16,7 @@ export class FilesService {
       return file_name;
     } catch (error) {
       throw new HttpException(
-        'Error writing image to file!',
+        'Rasmni saqlashda xatolik!',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

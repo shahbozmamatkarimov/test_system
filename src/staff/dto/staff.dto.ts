@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsPhoneNumber, IsString, IsEmail } from 'class-validator';
+import { IsNotEmpty, IsString, IsStrongPassword, MinLength } from 'class-validator';
 
-export class CreateStaffDto {
+export class StaffDto {
   @ApiProperty({
     type: 'string',
     example: 'John',
@@ -16,8 +16,6 @@ export class CreateStaffDto {
     example: '+998901234567',
     description: 'phone number of staff',
   })
-  @IsNotEmpty()
-  @IsPhoneNumber()
   phone_number: string;
 
   @ApiProperty({
@@ -25,8 +23,6 @@ export class CreateStaffDto {
     example: 'johndoe@gmail.com',
     description: 'email address of staff',
   })
-  @IsNotEmpty()
-  @IsEmail()
   email: string;
 
   @ApiProperty({
@@ -36,6 +32,7 @@ export class CreateStaffDto {
   })
   @IsNotEmpty()
   @IsString()
+  @MinLength(6)
   login: string;
 
   @ApiProperty({
@@ -44,7 +41,7 @@ export class CreateStaffDto {
     description: 'password of staff',
   })
   @IsNotEmpty()
-  @IsString()
+  @IsStrongPassword()
   password: string;
 
   @ApiProperty({
@@ -68,8 +65,6 @@ export class CreateStaffDto {
     example: 'mathematics',
     description: 'subject of staff',
   })
-  @IsNotEmpty()
-  @IsString()
   subject: string;
 
   @ApiProperty({
@@ -77,7 +72,5 @@ export class CreateStaffDto {
     example: 'group VI',
     description: 'group of staff',
   })
-  @IsNotEmpty()
-  @IsString()
   group: string;
 }

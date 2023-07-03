@@ -9,7 +9,7 @@ export const CookieGetter = createParamDecorator(
     const request = context.switchToHttp().getRequest();
     const refresh_token = request.cookies[data];
     if (!refresh_token) {
-      throw new UnauthorizedException('Token is not found!');
+      throw new UnauthorizedException("Ruxsat yo'q!");
     }
     return refresh_token;
   },

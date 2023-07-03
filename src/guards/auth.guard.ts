@@ -8,41 +8,35 @@ import { JwtService } from '@nestjs/jwt';
 import { Observable } from 'rxjs';
 
 @Injectable()
-export class StaffAdminGuard implements CanActivate {
+export class AuthGuard implements CanActivate {
   constructor(private readonly jwtService: JwtService) {}
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const req = context.switchToHttp().getRequest();
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
+    const auth_header = req.headers.authorization;
+    if (!auth_header) {
       throw new UnauthorizedException({
-        message: 'Token not found!',
+        message: 'Token topilmadi!',
       });
     }
-    const bearer = authHeader.split(' ')[0];
-    const token = authHeader.split(' ')[1];
+    const bearer = auth_header.split(' ')[0];
+    const token = auth_header.split(' ')[1];
     if (bearer !== 'Bearer' || !token) {
       throw new UnauthorizedException({
-        message: 'Token not found!',
+        message: 'Token topilmadi!',
       });
     }
-    let admin: any;
+    let user: any;
     try {
-      admin = this.jwtService.verify(token, {
+      user = this.jwtService.verify(token, {
         secret: process.env.ACCESS_TOKEN_KEY,
       });
-      req.user = admin;
+      req.user = user;
     } catch (error) {
       throw new UnauthorizedException({
-        message: 'Token expired!',
+        message: 'Token vaqti tugagan!',
       });
-    }
-    if (!req.user.role) {
-      throw new UnauthorizedException('Unauthorized staff!');
-    }
-    if (!req.user.username || req.user.username != 'admin01') {
-      throw new UnauthorizedException('You are not admin!');
     }
     return true;
   }

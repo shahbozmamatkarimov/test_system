@@ -1,17 +1,16 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateAnswerDto } from './dto/create-answer.dto';
-import { UpdateAnswerDto } from './dto/update-answer.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { Answer } from './models/answer.model';
+import { AnswerDto } from './dto/answer.dto';
 
 @Injectable()
 export class AnswerService {
   constructor(@InjectModel(Answer) private answerRepository: typeof Answer) {}
 
-  async create(createAnswerDto: CreateAnswerDto): Promise<object> {
+  async create(answerDto: AnswerDto): Promise<object> {
     try {
-      const answer = await this.answerRepository.create(createAnswerDto);
-      return { message: 'Answer created successfully', answer };
+      await this.answerRepository.create(answerDto);
+      return { message: "Javob ro'yxatga qo'shildi" };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -23,7 +22,7 @@ export class AnswerService {
         include: { all: true },
       });
       if (!answers.length) {
-        throw new BadRequestException('Answers not found!');
+        throw new BadRequestException("Javoblar ro'yxati bo'sh!");
       }
       return answers;
     } catch (error) {
@@ -33,9 +32,9 @@ export class AnswerService {
 
   async findOne(id: number): Promise<Answer> {
     try {
-      const answer = await this.answerRepository.findOne({ where: { id } });
+      const answer = await this.answerRepository.findByPk(id);
       if (!answer) {
-        throw new BadRequestException('Answer not found!');
+        throw new BadRequestException('Javob topilmadi!');
       }
       return answer;
     } catch (error) {
@@ -43,16 +42,17 @@ export class AnswerService {
     }
   }
 
-  async update(id: number, updateAnswerDto: UpdateAnswerDto): Promise<object> {
+  async update(id: number, answerDto: AnswerDto): Promise<object> {
     try {
-      const answer = await this.answerRepository.update(updateAnswerDto, {
+      const answer = await this.answerRepository.findByPk(id);
+      if (!answer) {
+        throw new BadRequestException('Javob topilmadi!');
+      }
+      await this.answerRepository.update(answerDto, {
         where: { id },
         returning: true,
       });
-      if (!answer[1].length) {
-        throw new BadRequestException('Answer not found!');
-      }
-      return { message: 'Answer updated successfully', answer: answer[1][0] };
+      return { message: "Javob o'zgaritirildi" };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -62,10 +62,10 @@ export class AnswerService {
     try {
       const answer = await this.answerRepository.findByPk(id);
       if (!answer) {
-        throw new BadRequestException('Answer not found!');
+        throw new BadRequestException('Javob topilmadi!');
       }
       await this.answerRepository.destroy({ where: { id } });
-      return { message: 'Answer deleted successfully', answer };
+      return { message: "Javob ro'yxatdan o'chirildi" };
     } catch (error) {
       throw new BadRequestException(error.message);
     }

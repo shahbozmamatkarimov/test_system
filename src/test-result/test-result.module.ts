@@ -5,7 +5,6 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { TestResult } from './models/test-result.model';
 import { Student } from 'src/student/models/student.model';
 import { TestGroup } from 'src/test-group/models/test-group.model';
-import { StaffAdminGuard } from 'src/guards/staff-is_admin.guard';
 import { JwtModule } from '@nestjs/jwt';
 
 @Module({

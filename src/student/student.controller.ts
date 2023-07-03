@@ -13,18 +13,13 @@ import {
 } from '@nestjs/common';
 import { StudentService } from './student.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { RegisterDto } from './dto/register.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { LoginDto } from './dto/login.dto';
 import { CookieGetter } from 'src/decorators/cookieGetter.decorator';
-import { EmailDto } from './dto/email.dto';
-import { FirstNameDto } from './dto/firstname.dto';
-import { LastNameDto } from './dto/lastname.dto';
-import { UsernameDto } from './dto/username.dto';
-import { UpdateStudentDto } from './dto/update-student.dto';
-import { StudentSelfGuard } from 'src/guards/student-self.guard';
 import { IsAdminGuard } from 'src/guards/is-admin.guard';
+import { StudentDto } from './dto/student.dto';
+import { AuthGuard } from 'src/guards/auth.guard';
 
 @ApiTags('students')
 @Controller('student')
@@ -33,14 +28,11 @@ export class StudentController {
 
   @ApiOperation({ summary: 'register of student' })
   @UseGuards(IsAdminGuard)
-  @Post('register')
+  @UseGuards(AuthGuard)
+  @Post('create')
   @UseInterceptors(FileInterceptor('image'))
-  register(
-    @Body() registerDto: RegisterDto,
-    @UploadedFile() image: any,
-    @Res({ passthrough: true }) res: Response,
-  ) {
-    return this.studentService.register(registerDto, image, res);
+  create(@Body() studentDto: StudentDto, @UploadedFile() image: any) {
+    return this.studentService.create(studentDto, image);
   }
 
   @ApiOperation({ summary: 'login of student' })
@@ -51,6 +43,7 @@ export class StudentController {
 
   @ApiOperation({ summary: 'logout of student' })
   @Post('logout')
+  @UseGuards(AuthGuard)
   logout(
     @CookieGetter('refresh_token') refresh_token: string,
     @Res({ passthrough: true }) res: Response,
@@ -60,50 +53,57 @@ export class StudentController {
 
   @ApiOperation({ summary: 'get all students' })
   @Get()
+  @UseGuards(AuthGuard)
   findAll() {
     return this.studentService.findAll();
   }
 
   @ApiOperation({ summary: 'get student by email' })
+  @Get(':id')
+  @UseGuards(AuthGuard)
+  findById(@Param() id: string) {
+    return this.studentService.findById(id);
+  }
+
+  @ApiOperation({ summary: 'get student by email' })
+  @Get('login')
+  @UseGuards(AuthGuard)
+  findByLogin(@Body() login: string) {
+    return this.studentService.findByLogin(login);
+  }
+
+  @ApiOperation({ summary: 'get student by email' })
   @Get('email')
-  findByEmail(@Body() email: EmailDto) {
+  @UseGuards(AuthGuard)
+  findByEmail(@Body() email: string) {
     return this.studentService.findByEmail(email);
   }
 
   @ApiOperation({ summary: 'get student by first name' })
-  @Get('firstname')
-  findByFirstName(@Body() first_name: FirstNameDto) {
-    return this.studentService.findByFirstName(first_name);
-  }
-
-  @ApiOperation({ summary: 'get student by last name' })
-  @Get('lastname')
-  findByLastName(@Body() last_name: LastNameDto) {
-    return this.studentService.findByLastName(last_name);
-  }
-
-  @ApiOperation({ summary: 'get student by username' })
-  @Get('username')
-  findByUsername(@Body() username: UsernameDto) {
-    return this.studentService.findByUsername(username);
+  @Get('fullname')
+  @UseGuards(AuthGuard)
+  findByName(@Body() full_name: string) {
+    return this.studentService.findByName(full_name);
   }
 
   @ApiOperation({ summary: 'update student by id' })
-  @UseGuards(StudentSelfGuard)
+  @UseGuards(IsAdminGuard)
+  @UseGuards(AuthGuard)
   @Patch(':id')
   @UseInterceptors(FileInterceptor('image'))
   update(
-    @Param('id') id: number,
-    @Body() updateDto: UpdateStudentDto,
+    @Param('id') id: string,
+    @Body() studentDto: StudentDto,
     @UploadedFile() image: any,
   ) {
-    return this.studentService.update(id, updateDto, image);
+    return this.studentService.update(id, studentDto, image);
   }
 
   @ApiOperation({ summary: 'delete student by id' })
   @UseGuards(IsAdminGuard)
+  @UseGuards(AuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: number) {
+  remove(@Param('id') id: string) {
     return this.studentService.remove(id);
   }
 }

@@ -12,7 +12,6 @@ import { StudentModule } from './student/student.module';
 import { QuestionModule } from './question/question.module';
 import { TestGroupModule } from './test-group/test-group.module';
 import { AnswerModule } from './answer/answer.module';
-import { AdminModule } from './admin/admin.module';
 import { TestResultModule } from './test-result/test-result.module';
 
 @Module({
@@ -30,6 +29,7 @@ import { TestResultModule } from './test-result/test-result.module';
       database: process.env.POSTGRES_DB,
       models: [],
       autoLoadModels: true,
+      logging: true,
     }),
     RoleModule,
     StaffModule,
@@ -40,7 +40,6 @@ import { TestResultModule } from './test-result/test-result.module';
     QuestionModule,
     TestGroupModule,
     AnswerModule,
-    AdminModule,
     TestResultModule,
   ],
 })

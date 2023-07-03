@@ -1,8 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateSubjectDto } from './dto/create-subject.dto';
-import { UpdateSubjectDto } from './dto/update-subject.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { Subject } from './models/subject.model';
+import { SubjectDto } from './dto/subject.dto';
 
 @Injectable()
 export class SubjectService {
@@ -10,16 +9,16 @@ export class SubjectService {
     @InjectModel(Subject) private subjectRepository: typeof Subject,
   ) {}
 
-  async create(createSubjectDto: CreateSubjectDto): Promise<object> {
+  async create(subjectDto: SubjectDto): Promise<object> {
     try {
       const exist_title = await this.subjectRepository.findOne({
-        where: { title: createSubjectDto.title },
+        where: { title: subjectDto.title },
       });
       if (exist_title) {
-        throw new BadRequestException('Subject already exists!');
+        throw new BadRequestException('Bunday nomli fan mavjud!');
       }
-      const new_subject = await this.subjectRepository.create(createSubjectDto);
-      return { message: 'Subject created succesully', subject: new_subject };
+      await this.subjectRepository.create(subjectDto);
+      return { message: "Fan ro'yxatga qo'shildi" };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -31,9 +30,23 @@ export class SubjectService {
         include: { all: true },
       });
       if (!subjects.length) {
-        throw new BadRequestException('Subjects not found!');
+        throw new BadRequestException("Fanlar ro'yxati bo'sh!");
       }
       return subjects;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async findById(id: number): Promise<Subject> {
+    try {
+      const subject = await this.subjectRepository.findByPk(id, {
+        include: { all: true },
+      });
+      if (!subject) {
+        throw new BadRequestException('Fan topilmadi!');
+      }
+      return subject;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -46,7 +59,7 @@ export class SubjectService {
         include: { all: true },
       });
       if (!subject) {
-        throw new BadRequestException('Subject not found!');
+        throw new BadRequestException('Fan topilmadi!');
       }
       return subject;
     } catch (error) {
@@ -54,33 +67,17 @@ export class SubjectService {
     }
   }
 
-  async findById(id: number): Promise<Subject> {
+  async update(id: number, subjectDto: SubjectDto): Promise<object> {
     try {
-      const subject = await this.subjectRepository.findByPk(id, {
-        include: { all: true },
-      });
-      if (!subject) {
-        throw new BadRequestException('Subject not found!');
+      const subject = this.subjectRepository.findByPk(id);
+      if (subject) {
+        throw new BadRequestException('Fan topilmadi!');
       }
-      return subject;
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
-  }
-
-  async update(
-    id: number,
-    updateSubjectDto: UpdateSubjectDto,
-  ): Promise<object> {
-    try {
-      const subject = await this.subjectRepository.update(updateSubjectDto, {
+      await this.subjectRepository.update(subjectDto, {
         where: { id },
         returning: true,
       });
-      if (!subject[1].length) {
-        throw new BadRequestException('Subject not found!');
-      }
-      return { message: 'Subject deleted succesfully', subject: subject[1][0] };
+      return { message: "Fan o'zgartirildi" };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -90,10 +87,10 @@ export class SubjectService {
     try {
       const subject = await this.subjectRepository.findByPk(id);
       if (!subject) {
-        throw new BadRequestException('Subject not found!');
+        throw new BadRequestException('Fan topilmadi!');
       }
       await this.subjectRepository.destroy({ where: { id } });
-      return { message: 'Subject deleted successfully', subject };
+      return { message: "Fan ro'yxatdan o'chirildi" };
     } catch (error) {
       throw new BadRequestException(error.message);
     }

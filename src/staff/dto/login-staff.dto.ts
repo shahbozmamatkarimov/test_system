@@ -8,7 +8,6 @@ export class LoginStaffDto {
     description: 'login of the staff',
   })
   @IsNotEmpty()
-  @IsString()
   login: string;
 
   @ApiProperty({
@@ -17,6 +16,5 @@ export class LoginStaffDto {
     description: 'password of the staff',
   })
   @IsNotEmpty()
-  @IsString()
   password: string;
 }

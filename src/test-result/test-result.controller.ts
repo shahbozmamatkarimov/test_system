@@ -9,10 +9,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { TestResultService } from './test-result.service';
-import { CreateTestResultDto } from './dto/create-test-result.dto';
-import { UpdateTestResultDto } from './dto/update-test-result.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { StaffAdminGuard } from 'src/guards/staff-is_admin.guard';
+import { TestResultDto } from './dto/test-result.dto';
+import { IsAdminGuard } from 'src/guards/is-admin.guard';
+import { AuthGuard } from 'src/guards/auth.guard';
 
 @ApiTags('test-results')
 @Controller('test-result')
@@ -20,36 +20,38 @@ export class TestResultController {
   constructor(private readonly testResultService: TestResultService) {}
 
   @ApiOperation({ summary: 'create a new test result' })
-  @UseGuards(StaffAdminGuard)
+  @UseGuards(IsAdminGuard)
+  @UseGuards(AuthGuard)
   @Post()
-  create(@Body() createTestResultDto: CreateTestResultDto) {
-    return this.testResultService.create(createTestResultDto);
+  create(@Body() testResultDto: TestResultDto) {
+    return this.testResultService.create(testResultDto);
   }
 
   @ApiOperation({ summary: 'get all test results' })
   @Get()
+  @UseGuards(AuthGuard)
   findAll() {
     return this.testResultService.findAll();
   }
 
   @ApiOperation({ summary: 'get test result by id' })
   @Get(':id')
+  @UseGuards(AuthGuard)
   findOne(@Param('id') id: number) {
     return this.testResultService.findOne(id);
   }
 
   @ApiOperation({ summary: 'update test result by id' })
-  @UseGuards(StaffAdminGuard)
+  @UseGuards(IsAdminGuard)
+  @UseGuards(AuthGuard)
   @Patch(':id')
-  update(
-    @Param('id') id: number,
-    @Body() updateTestResultDto: UpdateTestResultDto,
-  ) {
-    return this.testResultService.update(id, updateTestResultDto);
+  update(@Param('id') id: number, @Body() testResultDto: TestResultDto) {
+    return this.testResultService.update(id, testResultDto);
   }
 
   @ApiOperation({ summary: 'delete test result by id' })
-  @UseGuards(StaffAdminGuard)
+  @UseGuards(IsAdminGuard)
+  @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.testResultService.remove(id);

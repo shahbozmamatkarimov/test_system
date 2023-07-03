@@ -9,11 +9,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { QuestionService } from './question.service';
-import { CreateQuestionDto } from './dto/create-question.dto';
-import { UpdateQuestionDto } from './dto/update-question.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { StudentSelfGuard } from 'src/guards/student-self.guard';
-import { StaffAdminGuard } from 'src/guards/staff-is_admin.guard';
+import { QuestionDto } from './dto/question.dto';
+import { IsAdminGuard } from 'src/guards/is-admin.guard';
+import { AuthGuard } from 'src/guards/auth.guard';
 
 @ApiTags('questions')
 @Controller('question')
@@ -21,36 +20,38 @@ export class QuestionController {
   constructor(private readonly questionService: QuestionService) {}
 
   @ApiOperation({ summary: 'create a new question' })
-  @UseGuards(StudentSelfGuard)
+  @UseGuards(IsAdminGuard)
+  @UseGuards(AuthGuard)
   @Post()
-  create(@Body() createQuestionDto: CreateQuestionDto) {
-    return this.questionService.create(createQuestionDto);
+  create(@Body() questionDto: QuestionDto) {
+    return this.questionService.create(questionDto);
   }
 
   @ApiOperation({ summary: 'get all questions' })
   @Get()
+  @UseGuards(AuthGuard)
   findAll() {
     return this.questionService.findAll();
   }
 
   @ApiOperation({ summary: 'get question by id' })
   @Get(':id')
+  @UseGuards(AuthGuard)
   findOne(@Param('id') id: number) {
     return this.questionService.findOne(id);
   }
 
   @ApiOperation({ summary: 'update question by id' })
-  @UseGuards(StaffAdminGuard)
+  @UseGuards(IsAdminGuard)
+  @UseGuards(AuthGuard)
   @Patch(':id')
-  update(
-    @Param('id') id: number,
-    @Body() updateQuestionDto: UpdateQuestionDto,
-  ) {
-    return this.questionService.update(id, updateQuestionDto);
+  update(@Param('id') id: number, @Body() questionDto: QuestionDto) {
+    return this.questionService.update(id, questionDto);
   }
 
   @ApiOperation({ summary: 'delete question by id' })
-  @UseGuards(StaffAdminGuard)
+  @UseGuards(IsAdminGuard)
+  @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: number) {
     return this.questionService.remove(id);

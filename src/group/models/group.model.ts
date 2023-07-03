@@ -2,11 +2,13 @@ import {
   BelongsToMany,
   Column,
   DataType,
+  HasMany,
   Model,
   Table,
 } from 'sequelize-typescript';
 import { Staff } from 'src/staff/models/staff.model';
 import { StaffGroup } from './staff-group.model';
+import { Student } from 'src/student/models/student.model';
 
 interface GroupAttributes {
   name: string;
@@ -25,6 +27,7 @@ export class Group extends Model<Group, GroupAttributes> {
   @Column({
     type: DataType.STRING,
     allowNull: false,
+    unique: true,
   })
   name: string;
 
@@ -36,4 +39,7 @@ export class Group extends Model<Group, GroupAttributes> {
 
   @BelongsToMany(() => Staff, () => StaffGroup)
   staffs: Staff[];
+
+  @HasMany(() => Student)
+  students: Student[];
 }

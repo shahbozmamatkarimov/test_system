@@ -3,28 +3,32 @@ import {
   Column,
   DataType,
   ForeignKey,
+  HasMany,
   Model,
   Table,
 } from 'sequelize-typescript';
 import { Group } from 'src/group/models/group.model';
+import { TestResult } from 'src/test-result/models/test-result.model';
 
 interface StudentsAttributes {
-  first_name: string;
-  last_name: string;
+  id: string;
+  full_name: string;
   image: string;
   phone_number: string;
   email: string;
-  username: string;
+  login: string;
   hashed_password: string;
-  is_student: boolean;
+  telegram_username: string;
+  is_active: boolean;
   group_id: number;
 }
 
 @Table({ tableName: 'student' })
 export class Student extends Model<Student, StudentsAttributes> {
   @Column({
-    type: DataType.INTEGER,
-    autoIncrement: true,
+    type: DataType.STRING,
+    allowNull: false,
+    unique: true,
     primaryKey: true,
   })
   id: number;
@@ -33,13 +37,7 @@ export class Student extends Model<Student, StudentsAttributes> {
     type: DataType.STRING,
     allowNull: false,
   })
-  first_name: string;
-
-  @Column({
-    type: DataType.STRING,
-    allowNull: false,
-  })
-  last_name: string;
+  full_name: string;
 
   @Column({
     type: DataType.STRING,
@@ -48,14 +46,12 @@ export class Student extends Model<Student, StudentsAttributes> {
 
   @Column({
     type: DataType.STRING,
-    allowNull: false,
     unique: true,
   })
   phone_number: string;
 
   @Column({
     type: DataType.STRING,
-    allowNull: false,
     unique: true,
   })
   email: string;
@@ -65,7 +61,7 @@ export class Student extends Model<Student, StudentsAttributes> {
     allowNull: false,
     unique: true,
   })
-  username: string;
+  login: string;
 
   @Column({
     type: DataType.STRING,
@@ -74,10 +70,16 @@ export class Student extends Model<Student, StudentsAttributes> {
   hashed_password: string;
 
   @Column({
-    type: DataType.BOOLEAN,
-    defaultValue: true,
+    type: DataType.STRING,
+    unique: true,
   })
-  is_student: boolean;
+  telegram_username: string;
+
+  @Column({
+    type: DataType.BOOLEAN,
+    defaultValue: false,
+  })
+  is_active: boolean;
 
   @ForeignKey(() => Group)
   @Column({
@@ -88,4 +90,7 @@ export class Student extends Model<Student, StudentsAttributes> {
 
   @BelongsTo(() => Group)
   group: Group;
+
+  @HasMany(() => TestResult)
+  test_results: TestResult[];
 }

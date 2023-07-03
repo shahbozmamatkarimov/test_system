@@ -1,27 +1,18 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateQuestionDto } from './dto/create-question.dto';
-import { UpdateQuestionDto } from './dto/update-question.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { Question } from './models/question.model';
-import { TestGroup } from 'src/test-group/models/test-group.model';
+import { QuestionDto } from './dto/question.dto';
 
 @Injectable()
 export class QuestionService {
   constructor(
     @InjectModel(Question) private questionRepository: typeof Question,
-    @InjectModel(TestGroup) private testGroupRepository: typeof TestGroup,
   ) {}
 
-  async create(createQuestionDto: CreateQuestionDto): Promise<object> {
+  async create(questionDto: QuestionDto): Promise<object> {
     try {
-      const exist_question = await this.questionRepository.findOne({
-        where: { question: createQuestionDto.question },
-      });
-      if (exist_question) {
-        throw new BadRequestException('Question already exists!');
-      }
-      const question = await this.questionRepository.create(createQuestionDto);
-      return { message: 'Question created succesfully', question };
+      await this.questionRepository.create(questionDto);
+      return { messag: "Savol ro'yxatga qo'shildi" };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -33,7 +24,7 @@ export class QuestionService {
         include: { all: true },
       });
       if (!questions.length) {
-        throw new BadRequestException('Questions not found!');
+        throw new BadRequestException("Savollar ro'yxati bo'sh!");
       }
       return questions;
     } catch (error) {
@@ -43,9 +34,9 @@ export class QuestionService {
 
   async findOne(id: number): Promise<Question> {
     try {
-      const question = await this.questionRepository.findOne({ where: { id } });
+      const question = await this.questionRepository.findByPk(id);
       if (!question) {
-        throw new BadRequestException('Question not found!');
+        throw new BadRequestException('Savol topilmadi!');
       }
       return question;
     } catch (error) {
@@ -53,22 +44,17 @@ export class QuestionService {
     }
   }
 
-  async update(
-    id: number,
-    updateQuestionDto: UpdateQuestionDto,
-  ): Promise<object> {
+  async update(id: number, questionDto: QuestionDto): Promise<object> {
     try {
-      const question = await this.questionRepository.update(updateQuestionDto, {
+      const question = await this.questionRepository.findByPk(id);
+      if (!question) {
+        throw new BadRequestException('Savol topilmadi!');
+      }
+      await this.questionRepository.update(questionDto, {
         where: { id },
         returning: true,
       });
-      if (!question[1].length) {
-        throw new BadRequestException('Question not found!');
-      }
-      return {
-        message: 'Question updated succesfully',
-        question: question[1][0],
-      };
+      return { message: "Savol o'zgartirildi" };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -78,10 +64,10 @@ export class QuestionService {
     try {
       const question = await this.questionRepository.findByPk(id);
       if (!question) {
-        throw new BadRequestException('Question not found!');
+        throw new BadRequestException('Savol topilmadi!');
       }
       await this.questionRepository.destroy({ where: { id } });
-      return { message: 'Question deleted successfully', question };
+      return { message: "Savol ro'yxatdan o'chirildi" };
     } catch (error) {
       throw new BadRequestException(error.message);
     }

@@ -3,14 +3,15 @@ import {
   Column,
   DataType,
   ForeignKey,
+  HasMany,
   Model,
   Table,
 } from 'sequelize-typescript';
+import { Answer } from 'src/answer/models/answer.model';
 import { TestGroup } from 'src/test-group/models/test-group.model';
 
 interface QuestionAttributes {
   question: string;
-  is_multi_answer: boolean;
   test_group_id: number;
 }
 
@@ -29,12 +30,6 @@ export class Question extends Model<Question, QuestionAttributes> {
   })
   question: string;
 
-  @Column({
-    type: DataType.BOOLEAN,
-    defaultValue: false,
-  })
-  is_multi_answer: boolean;
-
   @ForeignKey(() => TestGroup)
   @Column({
     type: DataType.INTEGER,
@@ -44,4 +39,7 @@ export class Question extends Model<Question, QuestionAttributes> {
 
   @BelongsTo(() => TestGroup)
   test_group: TestGroup;
+
+  @HasMany(() => Answer)
+  answers: Answer[];
 }

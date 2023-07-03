@@ -1,11 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
 
-export class UpdateRoleDto {
+export class RoleDto {
   @ApiProperty({
     type: 'string',
-    example: 'teacher',
-    description: 'new role',
+    example: 'admin',
+    description: 'role name',
   })
   @IsNotEmpty()
   @IsString()
@@ -13,10 +13,8 @@ export class UpdateRoleDto {
 
   @ApiProperty({
     type: 'string',
-    example: 'this is a first teacher',
-    description: 'new description of the new role',
+    example: 'this is a first admin',
+    description: 'description of the role',
   })
-  @IsNotEmpty()
-  @IsString()
   description: string;
 }

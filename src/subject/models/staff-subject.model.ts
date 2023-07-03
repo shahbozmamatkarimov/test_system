@@ -19,9 +19,9 @@ export class StaffSubject extends Model<StaffSubject> {
 
   @ForeignKey(() => Staff)
   @Column({
-    type: DataType.INTEGER,
+    type: DataType.STRING,
   })
-  staff_id: number;
+  staff_id: string;
 
   @ForeignKey(() => Subject)
   @Column({

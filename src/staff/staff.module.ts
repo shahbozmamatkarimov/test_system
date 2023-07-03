@@ -13,6 +13,7 @@ import { StaffGroup } from 'src/group/models/staff-group.model';
 import { RoleModule } from 'src/role/role.module';
 import { SubjectModule } from 'src/subject/subject.module';
 import { GroupModule } from 'src/group/group.module';
+import { StaffSubject } from 'src/subject/models/staff-subject.model';
 
 @Module({
   imports: [
@@ -21,11 +22,12 @@ import { GroupModule } from 'src/group/group.module';
       Role,
       StaffRole,
       Subject,
+      StaffSubject,
       Group,
       StaffGroup,
     ]),
     JwtModule.register({}),
-    FilesModule, 
+    FilesModule,
     RoleModule,
     SubjectModule,
     GroupModule,

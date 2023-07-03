@@ -9,10 +9,10 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AnswerService } from './answer.service';
-import { CreateAnswerDto } from './dto/create-answer.dto';
-import { UpdateAnswerDto } from './dto/update-answer.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { StaffAdminGuard } from 'src/guards/staff-is_admin.guard';
+import { AnswerDto } from './dto/answer.dto';
+import { IsAdminGuard } from 'src/guards/is-admin.guard';
+import { AuthGuard } from 'src/guards/auth.guard';
 
 @ApiTags('answers')
 @Controller('answer')
@@ -20,36 +20,39 @@ export class AnswerController {
   constructor(private readonly answerService: AnswerService) {}
 
   @ApiOperation({ summary: 'Create a new answer' })
-  @UseGuards(StaffAdminGuard)
   @Post()
-  create(@Body() createAnswerDto: CreateAnswerDto) {
-    return this.answerService.create(createAnswerDto);
+  @UseGuards(IsAdminGuard)
+  @UseGuards(AuthGuard)
+  create(@Body() answerDto: AnswerDto) {
+    return this.answerService.create(answerDto);
   }
 
   @ApiOperation({ summary: 'get all answers' })
-  @UseGuards(StaffAdminGuard)
   @Get()
+  @UseGuards(AuthGuard)
   findAll() {
     return this.answerService.findAll();
   }
 
   @ApiOperation({ summary: 'get answer by id' })
-  @UseGuards(StaffAdminGuard)
   @Get(':id')
+  @UseGuards(AuthGuard)
   findOne(@Param('id') id: number) {
     return this.answerService.findOne(id);
   }
 
   @ApiOperation({ summary: 'update answer by id' })
-  @UseGuards(StaffAdminGuard)
   @Patch(':id')
-  update(@Param('id') id: number, @Body() updateAnswerDto: UpdateAnswerDto) {
-    return this.answerService.update(id, updateAnswerDto);
+  @UseGuards(IsAdminGuard)
+  @UseGuards(AuthGuard)
+  update(@Param('id') id: number, @Body() answerDto: AnswerDto) {
+    return this.answerService.update(id, answerDto);
   }
 
   @ApiOperation({ summary: 'delete answer by id' })
-  @UseGuards(StaffAdminGuard)
   @Delete(':id')
+  @UseGuards(IsAdminGuard)
+  @UseGuards(AuthGuard)
   remove(@Param('id') id: number) {
     return this.answerService.remove(id);
   }

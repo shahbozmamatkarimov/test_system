@@ -1,38 +1,27 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
   IsNotEmpty,
-  IsPhoneNumber,
   IsString,
-  IsEmail,
+  IsStrongPassword,
+  MinLength,
   IsNumber,
 } from 'class-validator';
 
-export class RegisterDto {
+export class StudentDto {
   @ApiProperty({
     type: 'string',
-    example: 'Adam',
-    description: "student's first name",
+    example: 'John Doe Smith',
+    description: "student's full name",
   })
   @IsNotEmpty()
   @IsString()
-  first_name: string;
-
-  @ApiProperty({
-    type: 'string',
-    example: 'Smith',
-    description: "student's last name",
-  })
-  @IsNotEmpty()
-  @IsString()
-  last_name: string;
+  full_name: string;
 
   @ApiProperty({
     type: 'string',
     example: '+998991112233',
     description: "student's phone number",
   })
-  @IsNotEmpty()
-  @IsPhoneNumber()
   phone_number: string;
 
   @ApiProperty({
@@ -40,8 +29,6 @@ export class RegisterDto {
     example: 'adam@gmail.com',
     description: "student's email address",
   })
-  @IsNotEmpty()
-  @IsEmail()
   email: string;
 
   @ApiProperty({
@@ -51,7 +38,8 @@ export class RegisterDto {
   })
   @IsNotEmpty()
   @IsString()
-  username: string;
+  @MinLength(6)
+  login: string;
 
   @ApiProperty({
     type: 'string',
@@ -59,8 +47,15 @@ export class RegisterDto {
     description: "student's password",
   })
   @IsNotEmpty()
-  @IsString()
+  @IsStrongPassword()
   password: string;
+
+  @ApiProperty({
+    type: 'string',
+    example: 'Adams',
+    description: "student's telegram username",
+  })
+  telegram_username: string;
 
   @ApiProperty({
     type: 'number',
@@ -68,5 +63,6 @@ export class RegisterDto {
     description: "student's group id",
   })
   @IsNotEmpty()
+  @IsNumber()
   group_id: number;
 }

@@ -1,8 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateTestGroupDto } from './dto/create-test-group.dto';
-import { UpdateTestGroupDto } from './dto/update-test-group.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { TestGroup } from './models/test-group.model';
+import { TestGroupDto } from './dto/test-group.dto';
 
 @Injectable()
 export class TestGroupService {
@@ -10,12 +9,10 @@ export class TestGroupService {
     @InjectModel(TestGroup) private testGroupRepository: typeof TestGroup,
   ) {}
 
-  async create(createTestGroupDto: CreateTestGroupDto): Promise<object> {
+  async create(testGroupDto: TestGroupDto): Promise<object> {
     try {
-      const test_group = await this.testGroupRepository.create(
-        createTestGroupDto,
-      );
-      return { message: 'Test group created succesfully', test_group };
+      await this.testGroupRepository.create(testGroupDto);
+      return { message: "Test ro'yxatga qo'shildi" };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -27,7 +24,7 @@ export class TestGroupService {
         include: { all: true },
       });
       if (!test_groups.length) {
-        throw new BadRequestException('Test groups not found!');
+        throw new BadRequestException("Testlar ro'yxati bo'sh!");
       }
       return test_groups;
     } catch (error) {
@@ -41,7 +38,7 @@ export class TestGroupService {
         include: { all: true },
       });
       if (!test_group) {
-        throw new BadRequestException('Test group not found!');
+        throw new BadRequestException('Test topilmadi!');
       }
       return test_group;
     } catch (error) {
@@ -49,22 +46,17 @@ export class TestGroupService {
     }
   }
 
-  async update(
-    id: number,
-    updateTestGroupDto: UpdateTestGroupDto,
-  ): Promise<object> {
+  async update(id: number, testGroupDto: TestGroupDto): Promise<object> {
     try {
-      const test_group = await this.testGroupRepository.update(
-        updateTestGroupDto,
-        { where: { id }, returning: true },
-      );
-      if (!test_group[1].length) {
-        throw new BadRequestException('Test group not found!');
+      const test_group = this.testGroupRepository.findByPk(id);
+      if (!test_group) {
+        throw new BadRequestException('Test topilmadi!');
       }
-      return {
-        message: 'Test group updated succesfully',
-        test_group: test_group[1][0],
-      };
+      await this.testGroupRepository.update(testGroupDto, {
+        where: { id },
+        returning: true,
+      });
+      return { message: "Test o'zgartirildi" };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -74,10 +66,10 @@ export class TestGroupService {
     try {
       const test_group = await this.testGroupRepository.findByPk(id);
       if (!test_group) {
-        throw new BadRequestException('Test group not found!');
+        throw new BadRequestException('Test topilmadi!');
       }
       await this.testGroupRepository.destroy({ where: { id } });
-      return { message: 'Test group deleted successfully', test_group };
+      return { message: "Test ro'yxatdan o'chirildi" };
     } catch (error) {
       throw new BadRequestException(error.message);
     }

@@ -27,13 +27,31 @@ export class Answer extends Model<Answer, AnswerAttributes> {
     type: DataType.TEXT,
     allowNull: false,
   })
-  answer: string;
+  a: string;
 
   @Column({
-    type: DataType.BOOLEAN,
+    type: DataType.TEXT,
     allowNull: false,
   })
-  is_true: boolean;
+  b: string;
+
+  @Column({
+    type: DataType.TEXT,
+    allowNull: false,
+  })
+  c: string;
+
+  @Column({
+    type: DataType.TEXT,
+    allowNull: false,
+  })
+  d: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  true_answer: string;
 
   @ForeignKey(() => Question)
   @Column({

@@ -1,4 +1,10 @@
-import { Table, Model, Column, DataType, BelongsToMany } from 'sequelize-typescript';
+import {
+  Table,
+  Model,
+  Column,
+  DataType,
+  BelongsToMany,
+} from 'sequelize-typescript';
 import { Staff } from 'src/staff/models/staff.model';
 import { StaffRole } from './staff-role.model';
 
@@ -28,6 +34,6 @@ export class Role extends Model<Role, RoleAttributes> {
   })
   description: string;
 
-  @BelongsToMany(()=> Staff, ()=> StaffRole)
+  @BelongsToMany(() => Staff, () => StaffRole)
   staffs: Staff[];
 }

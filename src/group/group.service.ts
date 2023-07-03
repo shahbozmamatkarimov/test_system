@@ -1,24 +1,22 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateGroupDto } from './dto/create-group.dto';
-import { UpdateGroupDto } from './dto/update-group.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { Group } from './models/group.model';
-import { GroupDateDto } from './dto/group-date.dto';
+import { GroupDto } from './dto/group.dto';
 
 @Injectable()
 export class GroupService {
   constructor(@InjectModel(Group) private groupRepository: typeof Group) {}
 
-  async create(createGroupDto: CreateGroupDto): Promise<object> {
+  async create(groupDto: GroupDto): Promise<object> {
     try {
       const exist_group = await this.groupRepository.findOne({
-        where: { name: createGroupDto.name },
+        where: { name: groupDto.name },
       });
       if (exist_group) {
-        throw new BadRequestException('Group already exists!');
+        throw new BadRequestException('Bunday nomli guruh mavjud!');
       }
-      const group = await this.groupRepository.create(createGroupDto);
-      return { message: 'Group created succesfully', group };
+      await this.groupRepository.create(groupDto);
+      return { message: "Guruh ro'yxatga qo'shildi" };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -30,9 +28,23 @@ export class GroupService {
         include: { all: true },
       });
       if (!groups.length) {
-        throw new BadRequestException('Groups not found!');
+        throw new BadRequestException("Guruhlar ro'yxati bo'sh!");
       }
       return groups;
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async findById(id: number): Promise<Group> {
+    try {
+      const group = await this.groupRepository.findByPk(id, {
+        include: { all: true },
+      });
+      if (!group) {
+        throw new BadRequestException('Guruh topilmadi!');
+      }
+      return group;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -45,7 +57,7 @@ export class GroupService {
         include: { all: true },
       });
       if (!group) {
-        throw new BadRequestException('Group not found!');
+        throw new BadRequestException('Guruh topilmadi!');
       }
       return group;
     } catch (error) {
@@ -53,14 +65,14 @@ export class GroupService {
     }
   }
 
-  async findByStartDate(startDate: GroupDateDto): Promise<Group> {
+  async findByStartDate(start_date: Date): Promise<Group> {
     try {
       const group = await this.groupRepository.findOne({
-        where: { start_date: startDate.start_date },
+        where: { start_date },
         include: { all: true },
       });
       if (!group) {
-        throw new BadRequestException('Group not found!');
+        throw new BadRequestException('Guruh topilmadi!');
       }
       return group;
     } catch (error) {
@@ -68,30 +80,23 @@ export class GroupService {
     }
   }
 
-  async findById(id: number): Promise<Group> {
+  async update(id: number, groupDto: GroupDto): Promise<object> {
     try {
-      const group = await this.groupRepository.findByPk(id, {
-        include: { all: true },
-      });
+      const group = await this.groupRepository.findByPk(id);
       if (!group) {
-        throw new BadRequestException('Group not found!');
+        throw new BadRequestException('Guruh topilmadi!');
       }
-      return group;
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
-  }
-
-  async update(id: number, updateGroupDto: UpdateGroupDto): Promise<object> {
-    try {
-      const group = await this.groupRepository.update(updateGroupDto, {
-        where: { id: id },
+      const exist_group = await this.groupRepository.findOne({
+        where: { name: groupDto.name },
+      });
+      if (exist_group) {
+        throw new BadRequestException('Bunday nomli guruh mavjud!');
+      }
+      await this.groupRepository.update(groupDto, {
+        where: { id },
         returning: true,
       });
-      if (!group[1].length) {
-        throw new BadRequestException('Group not found!');
-      }
-      return { message: 'Updated group successfully', group: group[1][0] };
+      return { message: "Guruh ma'lumotlari o'zgartirildi" };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -101,10 +106,10 @@ export class GroupService {
     try {
       const group = await this.groupRepository.findByPk(id);
       if (!group) {
-        throw new BadRequestException('Group not found!');
+        throw new BadRequestException('Guruh topilmadi!');
       }
       await this.groupRepository.destroy({ where: { id } });
-      return { message: 'Group deleted successfully', group };
+      return { message: "Guruh ro'yxatdan o'chirildi" };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
