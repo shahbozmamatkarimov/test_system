@@ -50,7 +50,7 @@ export class StaffService {
         throw new BadRequestException('Bunday telefon raqam mavjud!');
       }
       const is_exist_telegram = await this.staffRepository.findOne({
-        where: { phone_number },
+        where: { telegram_username },
       });
       if (is_exist_telegram) {
         throw new BadRequestException('Bunday telegram username mavjud!');
@@ -75,7 +75,41 @@ export class StaffService {
           image: image_name,
           ...staffDto,
         });
-        this.staffSetAttributes(staffDto, staff);
+        if (staffDto.role) {
+          const roles = await this.roleService.findAll();
+          if (!roles.length) {
+            await this.roleService.create({
+              name: 'admin',
+              description: 'first admin',
+            });
+          }
+          staffDto.role = staffDto.role.toLowerCase();
+          const role = await this.roleService.findByRole(staffDto.role);
+          if (!role) {
+            throw new BadRequestException('Role topilmadi!');
+          }
+          await staff.$set('roles', [role.id]);
+          await staff.save();
+          staff.roles = [role];
+        }
+        if (staffDto.subject) {
+          const subject = await this.subjectService.findByTitle(staffDto.subject);
+          if (!subject) {
+            throw new BadRequestException('Fan topilmadi!');
+          }
+          await staff.$set('subjects', [subject.id]);
+          await staff.save();
+          staff.subjects = [subject];
+        }
+        if (staffDto.group) {
+          const group = await this.groupService.findByName(staffDto.group);
+          if (!group) {
+            throw new BadRequestException('Guruh topilmadi!');
+          }
+          await staff.$set('groups', [group.id]);
+          await staff.save();
+          staff.groups = [group];
+        }
         return { message: "Xodim ro'yxatga qo'shildi" };
       }
       const staff = await this.staffRepository.create({
@@ -83,7 +117,41 @@ export class StaffService {
         hashed_password,
         ...staffDto,
       });
-      this.staffSetAttributes(staffDto, staff);
+      if (staffDto.role) {
+        const roles = await this.roleService.findAll();
+        if (!roles.length) {
+          await this.roleService.create({
+            name: 'admin',
+            description: 'first admin',
+          });
+        }
+        staffDto.role = staffDto.role.toLowerCase();
+        const role = await this.roleService.findByRole(staffDto.role);
+        if (!role) {
+          throw new BadRequestException('Role topilmadi!');
+        }
+        await staff.$set('roles', [role.id]);
+        await staff.save();
+        staff.roles = [role];
+      }
+      if (staffDto.subject) {
+        const subject = await this.subjectService.findByTitle(staffDto.subject);
+        if (!subject) {
+          throw new BadRequestException('Fan topilmadi!');
+        }
+        await staff.$set('subjects', [subject.id]);
+        await staff.save();
+        staff.subjects = [subject];
+      }
+      if (staffDto.group) {
+        const group = await this.groupService.findByName(staffDto.group);
+        if (!group) {
+          throw new BadRequestException('Guruh topilmadi!');
+        }
+        await staff.$set('groups', [group.id]);
+        await staff.save();
+        staff.groups = [group];
+      }
       return { message: "Xodim ro'yxatga qo'shildi" };
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -371,7 +439,7 @@ export class StaffService {
         throw new BadRequestException('Bunday telefon raqam mavjud!');
       }
       const is_exist_telegram = await this.staffRepository.findOne({
-        where: { phone_number },
+        where: { telegram_username },
       });
       if (is_exist_telegram) {
         throw new BadRequestException('Bunday telegram username mavjud!');
@@ -387,14 +455,82 @@ export class StaffService {
           { ...staffDto, image: image_name },
           { where: { id }, returning: true },
         );
-        this.staffSetAttributes(staffDto, staff);
+        if (staffDto.role) {
+          const roles = await this.roleService.findAll();
+          if (!roles.length) {
+            await this.roleService.create({
+              name: 'admin',
+              description: 'first admin',
+            });
+          }
+          staffDto.role = staffDto.role.toLowerCase();
+          const role = await this.roleService.findByRole(staffDto.role);
+          if (!role) {
+            throw new BadRequestException('Role topilmadi!');
+          }
+          await staff.$set('roles', [role.id]);
+          await staff.save();
+          staff.roles = [role];
+        }
+        if (staffDto.subject) {
+          const subject = await this.subjectService.findByTitle(staffDto.subject);
+          if (!subject) {
+            throw new BadRequestException('Fan topilmadi!');
+          }
+          await staff.$set('subjects', [subject.id]);
+          await staff.save();
+          staff.subjects = [subject];
+        }
+        if (staffDto.group) {
+          const group = await this.groupService.findByName(staffDto.group);
+          if (!group) {
+            throw new BadRequestException('Guruh topilmadi!');
+          }
+          await staff.$set('groups', [group.id]);
+          await staff.save();
+          staff.groups = [group];
+        }
         return { message: "Xodim ma'lumotlari o'zgartirildi" };
       }
       await this.staffRepository.update(staffDto, {
         where: { id },
         returning: true,
       });
-      this.staffSetAttributes(staffDto, staff);
+      if (staffDto.role) {
+        const roles = await this.roleService.findAll();
+        if (!roles.length) {
+          await this.roleService.create({
+            name: 'admin',
+            description: 'first admin',
+          });
+        }
+        staffDto.role = staffDto.role.toLowerCase();
+        const role = await this.roleService.findByRole(staffDto.role);
+        if (!role) {
+          throw new BadRequestException('Role topilmadi!');
+        }
+        await staff.$set('roles', [role.id]);
+        await staff.save();
+        staff.roles = [role];
+      }
+      if (staffDto.subject) {
+        const subject = await this.subjectService.findByTitle(staffDto.subject);
+        if (!subject) {
+          throw new BadRequestException('Fan topilmadi!');
+        }
+        await staff.$set('subjects', [subject.id]);
+        await staff.save();
+        staff.subjects = [subject];
+      }
+      if (staffDto.group) {
+        const group = await this.groupService.findByName(staffDto.group);
+        if (!group) {
+          throw new BadRequestException('Guruh topilmadi!');
+        }
+        await staff.$set('groups', [group.id]);
+        await staff.save();
+        staff.groups = [group];
+      }
       return { message: "Xodim ma'lumotlari o'zgartirild" };
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -411,40 +547,6 @@ export class StaffService {
       return { message: "Xodim ro'yxatdan o'chirildi" };
     } catch (error) {
       throw new BadRequestException(error.message);
-    }
-  }
-
-  private async staffSetAttributes(
-    staffDto: StaffDto,
-    staff: Staff,
-  ): Promise<void> {
-    if (staffDto.role) {
-      staffDto.role = staffDto.role.toLowerCase();
-      const role = await this.roleService.findByRole(staffDto.role);
-      if (!role) {
-        throw new BadRequestException('Role topilmadi!');
-      }
-      await staff.$set('roles', [role.id]);
-      await staff.save();
-      staff.roles = [role];
-    }
-    if (staffDto.subject) {
-      const subject = await this.subjectService.findByTitle(staffDto.subject);
-      if (!subject) {
-        throw new BadRequestException('Fan topilmadi!');
-      }
-      await staff.$set('subjects', [subject.id]);
-      await staff.save();
-      staff.subjects = [subject];
-    }
-    if (staffDto.group) {
-      const group = await this.groupService.findByName(staffDto.group);
-      if (!group) {
-        throw new BadRequestException('Guruh topilmadi!');
-      }
-      await staff.$set('groups', [group.id]);
-      await staff.save();
-      staff.groups = [group];
     }
   }
 }

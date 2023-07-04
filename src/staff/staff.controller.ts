@@ -31,8 +31,6 @@ export class StaffController {
 
   @ApiOperation({ summary: 'create a new staff' })
   @Post('create')
-  @UseGuards(IsAdminGuard)
-  @UseGuards(AuthGuard)
   @UseInterceptors(FileInterceptor('image'))
   create(@Body() staffDto: StaffDto, @UploadedFile() image: any) {
     return this.staffService.create(staffDto, image);

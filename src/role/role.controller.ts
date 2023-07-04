@@ -20,7 +20,6 @@ export class RoleController {
   constructor(private readonly roleService: RoleService) {}
 
   @ApiOperation({ summary: 'create a new role' })
-  @UseGuards(IsAdminGuard)
   @Post()
   @UseGuards(IsAdminGuard)
   @UseGuards(AuthGuard)
