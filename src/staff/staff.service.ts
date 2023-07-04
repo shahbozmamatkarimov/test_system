@@ -76,13 +76,6 @@ export class StaffService {
           ...staffDto,
         });
         if (staffDto.role) {
-          const roles = await this.roleService.findAll();
-          if (!roles.length) {
-            await this.roleService.create({
-              name: 'admin',
-              description: 'first admin',
-            });
-          }
           staffDto.role = staffDto.role.toLowerCase();
           const role = await this.roleService.findByRole(staffDto.role);
           if (!role) {
@@ -118,13 +111,6 @@ export class StaffService {
         ...staffDto,
       });
       if (staffDto.role) {
-        const roles = await this.roleService.findAll();
-        if (!roles.length) {
-          await this.roleService.create({
-            name: 'admin',
-            description: 'first admin',
-          });
-        }
         staffDto.role = staffDto.role.toLowerCase();
         const role = await this.roleService.findByRole(staffDto.role);
         if (!role) {
@@ -196,7 +182,7 @@ export class StaffService {
         message: 'Xodim tizimga kirdi',
         id: staff.id,
         role: staff.roles,
-        acces_token: token.access_token,
+        access_token: token.access_token,
       };
     } catch (error) {
       throw new BadRequestException(error.message);

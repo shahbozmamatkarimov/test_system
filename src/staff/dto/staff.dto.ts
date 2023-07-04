@@ -16,7 +16,7 @@ export class StaffDto {
     example: '+998901234567',
     description: 'phone number of staff',
   })
-  phone_number: string;
+  phone_number?: string;
 
   @ApiProperty({
     type: 'string',
@@ -49,7 +49,7 @@ export class StaffDto {
     example: 'johndoe2000',
     description: 'telegram username of staff',
   })
-  telegram_username: string;
+  telegram_username?: string;
 
   @ApiProperty({
     type: 'string',
@@ -65,12 +65,12 @@ export class StaffDto {
     example: 'mathematics',
     description: 'subject of staff',
   })
-  subject: string;
+  subject?: string;
 
   @ApiProperty({
     type: 'string',
     example: 'group VI',
     description: 'group of staff',
   })
-  group: string;
+  group?: string;
 }

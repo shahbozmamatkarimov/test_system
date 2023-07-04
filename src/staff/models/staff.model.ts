@@ -31,7 +31,7 @@ export class Staff extends Model<Staff, StaffAttributes> {
     allowNull: false,
     unique: true,
   })
-  id: number;
+  id: string;
 
   @Column({
     type: DataType.STRING,

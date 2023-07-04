@@ -43,7 +43,6 @@ export class RoleController {
 
   @ApiOperation({ summary: 'get role by name' })
   @Get('name')
-  @UseGuards(AuthGuard)
   findByRole(@Body() name: string) {
     return this.roleService.findByRole(name);
   }

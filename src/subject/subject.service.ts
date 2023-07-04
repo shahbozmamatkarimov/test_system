@@ -69,8 +69,14 @@ export class SubjectService {
 
   async update(id: number, subjectDto: SubjectDto): Promise<object> {
     try {
+      const exist_title = await this.subjectRepository.findOne({
+        where: { title: subjectDto.title },
+      });
+      if (exist_title) {
+        throw new BadRequestException('Bunday nomli fan mavjud!');
+      }
       const subject = this.subjectRepository.findByPk(id);
-      if (subject) {
+      if (!subject) {
         throw new BadRequestException('Fan topilmadi!');
       }
       await this.subjectRepository.update(subjectDto, {

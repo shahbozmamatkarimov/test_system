@@ -26,6 +26,7 @@ export class Subject extends Model<Subject, SubjectAttributes> {
   @Column({
     type: DataType.STRING,
     allowNull: false,
+    unique: true,
   })
   title: string;
 

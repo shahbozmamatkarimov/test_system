@@ -53,6 +53,13 @@ export class RoleService {
 
   async findByRole(name: string): Promise<Role> {
     try {
+      const roles = await this.roleRepository.findAll();
+      if (!roles.length) {
+        await this.roleRepository.create({
+          name: 'admin',
+          description: 'first admin',
+        });
+      }
       const role = await this.roleRepository.findOne({
         where: { name },
         include: { all: true },
@@ -68,6 +75,12 @@ export class RoleService {
 
   async update(id: number, roleDto: RoleDto): Promise<object> {
     try {
+      const exist_role = await this.roleRepository.findOne({
+        where: { name: roleDto.name },
+      });
+      if (exist_role) {
+        throw new BadRequestException('Bunday nomli lavozim mavjud!');
+      }
       const role = await this.roleRepository.findByPk(id);
       if (!role) {
         throw new BadRequestException('Lavozim topilmadi!');
