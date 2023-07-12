@@ -11,8 +11,8 @@ import {
 import { QuestionService } from './question.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { QuestionDto } from './dto/question.dto';
-import { IsAdminGuard } from 'src/guards/is-admin.guard';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { IsAdminGuard } from 'src/guards/is-admin.guard';
 
 @ApiTags('questions')
 @Controller('question')
@@ -28,15 +28,15 @@ export class QuestionController {
   }
 
   @ApiOperation({ summary: 'get all questions' })
-  @Get()
   @UseGuards(AuthGuard)
+  @Get()
   findAll() {
     return this.questionService.findAll();
   }
 
   @ApiOperation({ summary: 'get question by id' })
-  @Get(':id')
   @UseGuards(AuthGuard)
+  @Get(':id')
   findOne(@Param('id') id: number) {
     return this.questionService.findOne(id);
   }

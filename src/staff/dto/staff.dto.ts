@@ -1,38 +1,23 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsStrongPassword, MinLength } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsStrongPassword,
+  IsPhoneNumber,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 
 export class StaffDto {
-  @ApiProperty({
-    type: 'string',
-    example: 'John',
-    description: 'first name of staff',
-  })
-  @IsNotEmpty()
-  @IsString()
-  full_name: string;
-
-  @ApiProperty({
-    type: 'string',
-    example: '+998901234567',
-    description: 'phone number of staff',
-  })
-  phone_number?: string;
-
-  @ApiProperty({
-    type: 'string',
-    example: 'johndoe@gmail.com',
-    description: 'email address of staff',
-  })
-  email: string;
-
   @ApiProperty({
     type: 'string',
     example: 'JohnDoe',
     description: 'login of staff',
   })
-  @IsNotEmpty()
-  @IsString()
-  @MinLength(6)
+  @IsNotEmpty({ message: 'Iltimos, login kiriting!' })
+  @IsString({ message: 'Login matn shaklida kiritilishi zarur!' })
+  @MinLength(5, { message: "Login uzunligi 5 tadan kam bo'lmasligi zarur!" })
+  @MaxLength(20, { message: "Login uzunligi 15 tadan ko'p bo'lmasligi zarur!" })
   login: string;
 
   @ApiProperty({
@@ -40,37 +25,46 @@ export class StaffDto {
     example: 'JohnDoe1!',
     description: 'password of staff',
   })
-  @IsNotEmpty()
-  @IsStrongPassword()
+  @IsNotEmpty({ message: 'Iltimos, parol kiriting!' })
+  @IsStrongPassword(
+    {},
+    {
+      message:
+        "Parol uzunligi 8 tadan kam bo'lmasligi, 1 ta katta harf, 1 ta son va 1 ta belgi qantashishligi zarur!",
+    },
+  )
   password: string;
 
   @ApiProperty({
     type: 'string',
-    example: 'johndoe2000',
-    description: 'telegram username of staff',
-  })
-  telegram_username?: string;
-
-  @ApiProperty({
-    type: 'string',
-    example: 'teacher',
+    example: 'admin',
     description: 'role of staff',
   })
-  @IsNotEmpty()
-  @IsString()
+  @IsNotEmpty({ message: 'Iltimos, rolini kiriting!' })
+  @IsString({ message: 'Roli matn shaklida kiritlishi zarur!' })
   role: string;
 
   @ApiProperty({
     type: 'string',
-    example: 'mathematics',
-    description: 'subject of staff',
+    example: 'John Doe Smith',
+    description: 'full name of staff',
   })
-  subject?: string;
+  @IsNotEmpty({ message: "Iltimos, to'liq ismingizni kiriting!" })
+  @IsString({ message: "To'liq ism matn shaklida kiritilishi zarur!" })
+  @MinLength(6, {
+    message: "To'liq ism uzunligi 6 tadan kam bo'lmasligi zarur!",
+  })
+  @MaxLength(50, {
+    message: "To'liq ism uzunligi 30 tadan ko'p bo'lmasligi zarur!",
+  })
+  full_name: string;
 
   @ApiProperty({
     type: 'string',
-    example: 'group VI',
-    description: 'group of staff',
+    example: '+998901234567',
+    description: 'phone number of staff',
   })
-  group?: string;
+  @IsNotEmpty({ message: 'Iltimos, telefon raqam kiritiing!' })
+  @IsPhoneNumber('UZ', { message: "Telefon raqamini to'g'ri kiritiing!" })
+  phone_number: string;
 }

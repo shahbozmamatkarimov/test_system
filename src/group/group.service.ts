@@ -82,21 +82,19 @@ export class GroupService {
 
   async update(id: number, groupDto: GroupDto): Promise<object> {
     try {
-      const group = await this.groupRepository.findByPk(id);
-      if (!group) {
-        throw new BadRequestException('Guruh topilmadi!');
-      }
       const exist_group = await this.groupRepository.findOne({
         where: { name: groupDto.name },
       });
       if (exist_group) {
-        throw new BadRequestException('Bunday nomli guruh mavjud!');
+        if (exist_group.id != id) {
+          throw new BadRequestException('Bunday nomli guruh mavjud!');
+        }
       }
       await this.groupRepository.update(groupDto, {
         where: { id },
         returning: true,
       });
-      return { message: "Guruh ma'lumotlari o'zgartirildi" };
+      return { message: "Guruh ma'lumotlari tahrirlandi" };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -104,10 +102,6 @@ export class GroupService {
 
   async remove(id: number): Promise<object> {
     try {
-      const group = await this.groupRepository.findByPk(id);
-      if (!group) {
-        throw new BadRequestException('Guruh topilmadi!');
-      }
       await this.groupRepository.destroy({ where: { id } });
       return { message: "Guruh ro'yxatdan o'chirildi" };
     } catch (error) {

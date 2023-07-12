@@ -9,8 +9,11 @@ import {
 import { Question } from 'src/question/models/question.model';
 
 interface AnswerAttributes {
-  answer: string;
-  is_true: boolean;
+  a: string;
+  b: string;
+  c: string;
+  d: string;
+  true_answer: string;
   question_id: number;
 }
 
@@ -56,7 +59,6 @@ export class Answer extends Model<Answer, AnswerAttributes> {
   @ForeignKey(() => Question)
   @Column({
     type: DataType.INTEGER,
-    allowNull: false,
   })
   question_id: number;
 

@@ -7,7 +7,7 @@ export class LoginDto {
     example: 'adamsmith',
     description: "student's email address",
   })
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Iltimos, login kiriting!' })
   login: string;
 
   @ApiProperty({
@@ -15,6 +15,6 @@ export class LoginDto {
     example: 'AdamSmith0!',
     description: "student's password",
   })
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Iltimos, parol kiriting!' })
   password: string;
 }

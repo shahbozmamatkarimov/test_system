@@ -7,8 +7,8 @@ export class QuestionDto {
     example: 'How many data types are there in javascript?',
     description: 'question of test',
   })
-  @IsNotEmpty()
-  @IsString()
+  @IsNotEmpty({ message: 'Iltimos, savolni kiriting!' })
+  @IsString({ message: 'Savol matn shaklida kiritilishi zarur!' })
   question: string;
 
   @ApiProperty({
@@ -16,7 +16,9 @@ export class QuestionDto {
     example: '1',
     description: 'id of test group',
   })
-  @IsNotEmpty()
-  @IsNumber()
+  @IsNotEmpty({
+    message: 'Iltimos, savol biriktirilgan test ID sini kiriting!',
+  })
+  @IsNumber({}, { message: "Test ID si son shaklida bo'lishi zarur!" })
   test_group_id: number;
 }

@@ -12,20 +12,9 @@ export class IsAdminGuard implements CanActivate {
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const req = context.switchToHttp().getRequest();
-    if (req.user.role.length == 1) {
-      if (req.user.role[0].name != 'admin') {
-        throw new UnauthorizedException(
-          "Foydalanuvchida adminlik huquqi yo'q!",
-        );
-      }
-    } else if (req.user.role.length > 1) {
-      for (let i of req.user.role) {
-        if (i.name == 'admin') {
-          return true;
-        }
-      }
-      throw new UnauthorizedException("Foydalanuvchida adminlik huquqi yo'q!");
+    if (req.user.role === 'admin' || req.user.role === 'superadmin') {
+      return true;
     }
-    return true;
+    throw new UnauthorizedException("Admin huquqi sizda yo'q!");
   }
 }

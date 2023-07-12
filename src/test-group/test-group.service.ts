@@ -2,17 +2,26 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { TestGroup } from './models/test-group.model';
 import { TestGroupDto } from './dto/test-group.dto';
+import { Answer } from 'src/answer/models/answer.model';
+import { Question } from 'src/question/models/question.model';
+import { Subject } from 'src/subject/models/subject.model';
+import { QuestionService } from 'src/question/question.service';
+import { TestSubmitService } from 'src/test-submit/test-submit.service';
+import { TestTimeService } from 'src/test-time/test-time.service';
 
 @Injectable()
 export class TestGroupService {
   constructor(
     @InjectModel(TestGroup) private testGroupRepository: typeof TestGroup,
+    private readonly questionService: QuestionService,
+    private readonly testSubmitService: TestSubmitService,
+    private readonly testTimeService: TestTimeService,
   ) {}
 
   async create(testGroupDto: TestGroupDto): Promise<object> {
     try {
-      await this.testGroupRepository.create(testGroupDto);
-      return { message: "Test ro'yxatga qo'shildi" };
+      const test_group = await this.testGroupRepository.create(testGroupDto);
+      return { message: "Test ro'yxatga qo'shildi", id: test_group.id };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -21,7 +30,7 @@ export class TestGroupService {
   async findAll(): Promise<TestGroup[]> {
     try {
       const test_groups = await this.testGroupRepository.findAll({
-        include: { all: true },
+        include: [{ model: Subject }, { model: Question, include: [Answer] }],
       });
       if (!test_groups.length) {
         throw new BadRequestException("Testlar ro'yxati bo'sh!");
@@ -35,7 +44,7 @@ export class TestGroupService {
   async findOne(id: number): Promise<TestGroup> {
     try {
       const test_group = await this.testGroupRepository.findByPk(id, {
-        include: { all: true },
+        include: [{ model: Subject }, { model: Question, include: [Answer] }],
       });
       if (!test_group) {
         throw new BadRequestException('Test topilmadi!');
@@ -48,15 +57,11 @@ export class TestGroupService {
 
   async update(id: number, testGroupDto: TestGroupDto): Promise<object> {
     try {
-      const test_group = this.testGroupRepository.findByPk(id);
-      if (!test_group) {
-        throw new BadRequestException('Test topilmadi!');
-      }
       await this.testGroupRepository.update(testGroupDto, {
         where: { id },
         returning: true,
       });
-      return { message: "Test o'zgartirildi" };
+      return { message: 'Test tahrirlandi' };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -64,10 +69,9 @@ export class TestGroupService {
 
   async remove(id: number): Promise<object> {
     try {
-      const test_group = await this.testGroupRepository.findByPk(id);
-      if (!test_group) {
-        throw new BadRequestException('Test topilmadi!');
-      }
+      await this.questionService.delete(id);
+      await this.testSubmitService.delete(id);
+      await this.testTimeService.delete(id);
       await this.testGroupRepository.destroy({ where: { id } });
       return { message: "Test ro'yxatdan o'chirildi" };
     } catch (error) {

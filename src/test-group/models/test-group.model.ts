@@ -10,10 +10,11 @@ import {
 import { Question } from 'src/question/models/question.model';
 import { Subject } from 'src/subject/models/subject.model';
 import { TestResult } from 'src/test-result/models/test-result.model';
+import { TestTime } from 'src/test-time/models/test-time.model';
 
 interface TestGroupAttributes {
   test_count: number;
-  test_time: string;
+  test_time: number;
   subject_id: number;
 }
 
@@ -36,12 +37,11 @@ export class TestGroup extends Model<TestGroup, TestGroupAttributes> {
     type: DataType.INTEGER,
     allowNull: false,
   })
-  minute: number;
+  test_time: number;
 
   @ForeignKey(() => Subject)
   @Column({
     type: DataType.INTEGER,
-    allowNull: false,
   })
   subject_id: number;
 
@@ -53,4 +53,7 @@ export class TestGroup extends Model<TestGroup, TestGroupAttributes> {
 
   @HasMany(() => TestResult)
   test_results: TestResult[];
+
+  @HasMany(() => TestTime)
+  test_times: TestTime[];
 }

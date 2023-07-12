@@ -11,8 +11,8 @@ import {
 import { TestGroupService } from './test-group.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { TestGroupDto } from './dto/test-group.dto';
-import { IsAdminGuard } from 'src/guards/is-admin.guard';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { IsAdminGuard } from 'src/guards/is-admin.guard';
 
 @ApiTags('test-groups')
 @Controller('test-group')
@@ -28,15 +28,15 @@ export class TestGroupController {
   }
 
   @ApiOperation({ summary: 'get all test groups' })
-  @Get()
   @UseGuards(AuthGuard)
+  @Get()
   findAll() {
     return this.testGroupService.findAll();
   }
 
   @ApiOperation({ summary: 'get test group by id' })
-  @Get(':id')
   @UseGuards(AuthGuard)
+  @Get(':id')
   findOne(@Param('id') id: number) {
     return this.testGroupService.findOne(id);
   }

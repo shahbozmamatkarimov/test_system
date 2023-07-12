@@ -7,138 +7,79 @@ import { LoginStaffDto } from './dto/login-staff.dto';
 import { generateToken, writeToCookie } from 'src/utils/token';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
-import { RoleService } from 'src/role/role.service';
-import { AddRoleDto } from './dto/addRole.dto';
 import { SubjectService } from 'src/subject/subject.service';
 import { GroupService } from 'src/group/group.service';
 import { AddSubjectDto } from './dto/addSubject.dto';
 import { AddGroupDto } from './dto/addGroup.dto';
-import { v4 } from 'uuid';
 import { StaffDto } from './dto/staff.dto';
+import { ProfileStaffDto } from './dto/profile-staff.dto';
+import { Op } from 'sequelize';
+import { AdminIdDto } from './dto/admin_id.dto';
+import { Student } from 'src/student/models/student.model';
 
 @Injectable()
 export class StaffService {
   constructor(
     @InjectModel(Staff) private staffRepository: typeof Staff,
+    @InjectModel(Student) private studentRepository: typeof Student,
     private readonly jwtService: JwtService,
     private readonly fileService: FilesService,
-    private readonly roleService: RoleService,
     private readonly subjectService: SubjectService,
     private readonly groupService: GroupService,
   ) {}
 
-  async create(staffDto: StaffDto, image: any): Promise<object> {
+  async signupSuperadmin(staffDto: StaffDto): Promise<object> {
     try {
-      const { login, email, password, phone_number, telegram_username } =
-        staffDto;
-      const is_exist_login = await this.staffRepository.findOne({
-        where: { login },
-      });
-      if (is_exist_login) {
-        throw new BadRequestException('Bunday login mavjud!');
-      }
-      const is_exist_email = await this.staffRepository.findOne({
-        where: { email },
-      });
-      if (is_exist_email) {
-        throw new BadRequestException('Bunday email mavjud!');
-      }
-      const is_exist_phone = await this.staffRepository.findOne({
-        where: { phone_number },
-      });
-      if (is_exist_phone) {
-        throw new BadRequestException('Bunday telefon raqam mavjud!');
-      }
-      const is_exist_telegram = await this.staffRepository.findOne({
-        where: { telegram_username },
-      });
-      if (is_exist_telegram) {
-        throw new BadRequestException('Bunday telegram username mavjud!');
-      }
-      const id: string = v4();
       let hashed_password: string;
-      try {
-        hashed_password = await hash(password, 7);
-      } catch (error) {
-        throw new BadRequestException(error.message);
-      }
-      if (image) {
-        let image_name: string;
+      const staffs = await this.staffRepository.findAll();
+      if (!staffs.length) {
         try {
-          image_name = await this.fileService.createFile(image);
+          hashed_password = await hash(staffDto.password, 7);
         } catch (error) {
           throw new BadRequestException(error.message);
         }
         const staff = await this.staffRepository.create({
-          id,
           hashed_password,
-          image: image_name,
           ...staffDto,
         });
-        if (staffDto.role) {
-          staffDto.role = staffDto.role.toLowerCase();
-          const role = await this.roleService.findByRole(staffDto.role);
-          if (!role) {
-            throw new BadRequestException('Role topilmadi!');
-          }
-          await staff.$set('roles', [role.id]);
-          await staff.save();
-          staff.roles = [role];
-        }
-        if (staffDto.subject) {
-          const subject = await this.subjectService.findByTitle(staffDto.subject);
-          if (!subject) {
-            throw new BadRequestException('Fan topilmadi!');
-          }
-          await staff.$set('subjects', [subject.id]);
-          await staff.save();
-          staff.subjects = [subject];
-        }
-        if (staffDto.group) {
-          const group = await this.groupService.findByName(staffDto.group);
-          if (!group) {
-            throw new BadRequestException('Guruh topilmadi!');
-          }
-          await staff.$set('groups', [group.id]);
-          await staff.save();
-          staff.groups = [group];
-        }
-        return { message: "Xodim ro'yxatga qo'shildi" };
+        return {
+          message: "Super admin sifatida ro'yxatdan o'tdingiz",
+          role: staff.role,
+        };
+      }
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async create(staffDto: StaffDto): Promise<object> {
+    try {
+      let hashed_password: string;
+      try {
+        hashed_password = await hash(staffDto.password, 7);
+      } catch (error) {
+        throw new BadRequestException(error.message);
+      }
+      const exist_student_login = await this.studentRepository.findOne({
+        where: { login: staffDto.login },
+      });
+      const exist_login = await this.staffRepository.findOne({
+        where: { login: staffDto.login },
+      });
+      if (exist_login || exist_student_login) {
+        throw new BadRequestException('Bunady login mavjud!');
+      }
+      const exist_phone = await this.staffRepository.findOne({
+        where: { phone_number: staffDto.phone_number },
+      });
+      if (exist_phone) {
+        throw new BadRequestException('Bunday telefon raqam mavjud!');
       }
       const staff = await this.staffRepository.create({
-        id,
         hashed_password,
         ...staffDto,
       });
-      if (staffDto.role) {
-        staffDto.role = staffDto.role.toLowerCase();
-        const role = await this.roleService.findByRole(staffDto.role);
-        if (!role) {
-          throw new BadRequestException('Role topilmadi!');
-        }
-        await staff.$set('roles', [role.id]);
-        await staff.save();
-        staff.roles = [role];
-      }
-      if (staffDto.subject) {
-        const subject = await this.subjectService.findByTitle(staffDto.subject);
-        if (!subject) {
-          throw new BadRequestException('Fan topilmadi!');
-        }
-        await staff.$set('subjects', [subject.id]);
-        await staff.save();
-        staff.subjects = [subject];
-      }
-      if (staffDto.group) {
-        const group = await this.groupService.findByName(staffDto.group);
-        if (!group) {
-          throw new BadRequestException('Guruh topilmadi!');
-        }
-        await staff.$set('groups', [group.id]);
-        await staff.save();
-        staff.groups = [group];
-      }
-      return { message: "Xodim ro'yxatga qo'shildi" };
+      return { message: "Xodim ro'yxatga qo'shildi", role: staff.role };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -165,7 +106,7 @@ export class StaffService {
       }
       const jwt_payload = {
         id: staff.id,
-        role: staff.roles,
+        role: staff.role,
       };
       let token: any;
       try {
@@ -179,9 +120,9 @@ export class StaffService {
         throw new BadRequestException(error.message);
       }
       return {
-        message: 'Xodim tizimga kirdi',
+        message: 'Tizimga kirildi',
         id: staff.id,
-        role: staff.roles,
+        role: staff.role,
         access_token: token.access_token,
       };
     } catch (error) {
@@ -199,47 +140,7 @@ export class StaffService {
         throw new BadRequestException(error.message);
       }
       res.clearCookie('refresh_token');
-      return { message: 'Xodim tizimdan chiqdi' };
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
-  }
-
-  async addRole(addRoleDto: AddRoleDto): Promise<object> {
-    try {
-      const staff = await this.staffRepository.findOne({
-        where: { id: addRoleDto.staff_id },
-      });
-      if (!staff) {
-        throw new BadRequestException('Xodim topilmadi!');
-      }
-      addRoleDto.name = addRoleDto.name.toLowerCase();
-      const role = await this.roleService.findByRole(addRoleDto.name);
-      if (!role) {
-        throw new BadRequestException('Lavozim topilmadi!');
-      }
-      await staff.$add('roles', role.id);
-      return { message: "Xodimga lavozim qo'shildi" };
-    } catch (error) {
-      throw new BadRequestException(error.message);
-    }
-  }
-
-  async removeRole(addRoleDto: AddRoleDto): Promise<object> {
-    try {
-      const staff = await this.staffRepository.findOne({
-        where: { id: addRoleDto.staff_id },
-      });
-      if (!staff) {
-        throw new BadRequestException('Xodim topilmadi!');
-      }
-      addRoleDto.name = addRoleDto.name.toLowerCase();
-      const role = await this.roleService.findByRole(addRoleDto.name);
-      if (!role) {
-        throw new BadRequestException('Lavozim topilmadi!');
-      }
-      await staff.$remove('roles', role.id);
-      return { message: 'Xodimdan lavozim olib tashlandi' };
+      return { message: 'Tizimdan chiqildi' };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -260,7 +161,7 @@ export class StaffService {
         throw new BadRequestException('Fan topilmadi!');
       }
       await staff.$add('subjects', subject.id);
-      return { message: 'Xodimga fan biriktirildi' };
+      return { message: 'Fan xodimga biriktirildi' };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -281,7 +182,7 @@ export class StaffService {
         throw new BadRequestException('Fan topilmadi!');
       }
       await staff.$remove('subjects', subject.id);
-      return { message: 'Xodimdan fan olib tashlandi' };
+      return { message: 'Fan xodimdan olib tashlandi' };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -300,7 +201,7 @@ export class StaffService {
         throw new BadRequestException('Guruh topilmadi!');
       }
       await staff.$add('groups', group.id);
-      return { message: 'Xodim guruhga biriktirildi' };
+      return { message: 'Guruh xodimga biriktirildi' };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -319,7 +220,7 @@ export class StaffService {
         throw new BadRequestException('Guruh topilmadi!');
       }
       await staff.$remove('groups', group.id);
-      return { message: 'Xodimdan guruh olib tashlandi' };
+      return { message: 'Guruh xodimdan olib tashlandi' };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -354,16 +255,15 @@ export class StaffService {
     }
   }
 
-  async findByLogin(login: string): Promise<Staff> {
+  async findByLogin(login: string): Promise<void> {
     try {
       const staff = await this.staffRepository.findOne({
         where: { login },
         include: { all: true },
       });
-      if (!staff) {
-        throw new BadRequestException('Xodim topilmadi!');
+      if (staff) {
+        throw new BadRequestException('Bunday login mavjud!');
       }
-      return staff;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -372,7 +272,7 @@ export class StaffService {
   async findByName(full_name: string): Promise<Staff> {
     try {
       const staff = await this.staffRepository.findOne({
-        where: { full_name },
+        where: { full_name: { [Op.like]: `%${full_name}%` } },
         include: { all: true },
       });
       if (!staff) {
@@ -399,135 +299,143 @@ export class StaffService {
     }
   }
 
-  async update(id: string, staffDto: StaffDto, image?: any): Promise<object> {
+  async getAll(): Promise<boolean> {
     try {
-      const staff = await this.staffRepository.findOne({ where: { id } });
-      if (!staff) {
-        throw new BadRequestException('Xodim topilmadi!');
+      const staffs = await this.staffRepository.findAll();
+      if (!staffs.length) {
+        return true;
       }
-      const { login, email, phone_number, telegram_username } = staffDto;
-      const is_exist_login = await this.staffRepository.findOne({
-        where: { login },
-      });
-      if (is_exist_login) {
-        throw new BadRequestException('Bunday login mavjud!');
-      }
-      const is_exist_email = await this.staffRepository.findOne({
-        where: { email },
-      });
-      if (is_exist_email) {
-        throw new BadRequestException('Bunday email mavjud!');
-      }
-      const is_exist_phone = await this.staffRepository.findOne({
-        where: { phone_number },
-      });
-      if (is_exist_phone) {
-        throw new BadRequestException('Bunday telefon raqam mavjud!');
-      }
-      const is_exist_telegram = await this.staffRepository.findOne({
-        where: { telegram_username },
-      });
-      if (is_exist_telegram) {
-        throw new BadRequestException('Bunday telegram username mavjud!');
-      }
-      if (image) {
-        let image_name: string;
-        try {
-          image_name = await this.fileService.createFile(image);
-        } catch (error) {
-          throw new BadRequestException(error.message);
-        }
-        await this.staffRepository.update(
-          { ...staffDto, image: image_name },
-          { where: { id }, returning: true },
-        );
-        if (staffDto.role) {
-          const roles = await this.roleService.findAll();
-          if (!roles.length) {
-            await this.roleService.create({
-              name: 'admin',
-              description: 'first admin',
-            });
-          }
-          staffDto.role = staffDto.role.toLowerCase();
-          const role = await this.roleService.findByRole(staffDto.role);
-          if (!role) {
-            throw new BadRequestException('Role topilmadi!');
-          }
-          await staff.$set('roles', [role.id]);
-          await staff.save();
-          staff.roles = [role];
-        }
-        if (staffDto.subject) {
-          const subject = await this.subjectService.findByTitle(staffDto.subject);
-          if (!subject) {
-            throw new BadRequestException('Fan topilmadi!');
-          }
-          await staff.$set('subjects', [subject.id]);
-          await staff.save();
-          staff.subjects = [subject];
-        }
-        if (staffDto.group) {
-          const group = await this.groupService.findByName(staffDto.group);
-          if (!group) {
-            throw new BadRequestException('Guruh topilmadi!');
-          }
-          await staff.$set('groups', [group.id]);
-          await staff.save();
-          staff.groups = [group];
-        }
-        return { message: "Xodim ma'lumotlari o'zgartirildi" };
-      }
-      await this.staffRepository.update(staffDto, {
-        where: { id },
-        returning: true,
-      });
-      if (staffDto.role) {
-        const roles = await this.roleService.findAll();
-        if (!roles.length) {
-          await this.roleService.create({
-            name: 'admin',
-            description: 'first admin',
-          });
-        }
-        staffDto.role = staffDto.role.toLowerCase();
-        const role = await this.roleService.findByRole(staffDto.role);
-        if (!role) {
-          throw new BadRequestException('Role topilmadi!');
-        }
-        await staff.$set('roles', [role.id]);
-        await staff.save();
-        staff.roles = [role];
-      }
-      if (staffDto.subject) {
-        const subject = await this.subjectService.findByTitle(staffDto.subject);
-        if (!subject) {
-          throw new BadRequestException('Fan topilmadi!');
-        }
-        await staff.$set('subjects', [subject.id]);
-        await staff.save();
-        staff.subjects = [subject];
-      }
-      if (staffDto.group) {
-        const group = await this.groupService.findByName(staffDto.group);
-        if (!group) {
-          throw new BadRequestException('Guruh topilmadi!');
-        }
-        await staff.$set('groups', [group.id]);
-        await staff.save();
-        staff.groups = [group];
-      }
-      return { message: "Xodim ma'lumotlari o'zgartirild" };
+      return false;
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
-  async remove(id: string): Promise<object> {
+  async update(id: string, staffDto: StaffDto): Promise<object> {
     try {
       const staff = await this.staffRepository.findOne({ where: { id } });
       if (!staff) {
         throw new BadRequestException('Xodim topilmadi!');
+      }
+      const exist_login = await this.staffRepository.findOne({
+        where: { login: staffDto.login },
+      });
+      if (exist_login) {
+        if (staff.id != exist_login.id) {
+          throw new BadRequestException('Bu login band!');
+        }
+      }
+      const exist_phone = await this.staffRepository.findOne({
+        where: { phone_number: staffDto.phone_number },
+      });
+      if (exist_phone) {
+        if (staff.id != exist_login.id) {
+          throw new BadRequestException('Bu login band!');
+        }
+      }
+      let hashed_password: string;
+      if (staffDto.password == staff.hashed_password) {
+        hashed_password = staff.hashed_password;
+      } else {
+        try {
+          hashed_password = await hash(staffDto.password, 7);
+        } catch (error) {
+          throw new BadRequestException(error.message);
+        }
+      }
+      const updated_staff = await this.staffRepository.update(
+        { ...staffDto, hashed_password },
+        { where: { id }, returning: true },
+      );
+      return {
+        message: "Xodim ma'lumotlari tahrirlandi",
+        staff: updated_staff[1][0],
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async editProfile(
+    id: string,
+    profileStaffDto: ProfileStaffDto,
+    image: any,
+  ): Promise<object> {
+    const { phone_number, email, telegram_username } = profileStaffDto;
+    const staff = await this.staffRepository.findOne({ where: { id } });
+    if (!staff) {
+      throw new BadRequestException('Xodim topilmadi!');
+    }
+    if (phone_number) {
+      const exist_phone = await this.staffRepository.findOne({
+        where: { phone_number },
+      });
+      if (exist_phone) {
+        if (exist_phone.id != staff.id) {
+          throw new BadRequestException('Bu telefon raqam band!');
+        }
+      }
+    }
+    if (email) {
+      const exist_email = await this.staffRepository.findOne({
+        where: { email },
+      });
+      if (exist_email) {
+        if (exist_email.id != staff.id) {
+          throw new BadRequestException('Bu email band!');
+        }
+      }
+    }
+    if (telegram_username) {
+      const exist_telegram = await this.staffRepository.findOne({
+        where: { telegram_username },
+      });
+      if (exist_telegram) {
+        if (exist_telegram.id != staff.id) {
+          throw new BadRequestException('Bu telegram username band!');
+        }
+      }
+    }
+    if (image) {
+      let image_name: string;
+      try {
+        image_name = await this.fileService.createFile(image);
+      } catch (error) {
+        throw new BadRequestException(error.message);
+      }
+      const staff_updated = await this.staffRepository.update(
+        { image: image_name, ...profileStaffDto },
+        { where: { id }, returning: true },
+      );
+      return {
+        message: "Ma'lumotlaringiz tahrirlandi",
+        staff: staff_updated[1][0],
+      };
+    }
+    const updated_staff = await this.staffRepository.update(profileStaffDto, {
+      where: { id },
+      returning: true,
+    });
+    return {
+      message: "Ma'lumotlaringiz tahrirlandi",
+      staff: updated_staff[1][0],
+    };
+  }
+
+  async remove(id: string, adminIdDto: AdminIdDto): Promise<object> {
+    try {
+      const staff = await this.staffRepository.findOne({ where: { id } });
+      if (!staff) {
+        throw new BadRequestException('Xodim topilmadi!');
+      }
+      if (staff.role === 'superadmin') {
+        throw new BadRequestException("Super adminni o'chirish mumkin emas!");
+      }
+      const admin = await this.staffRepository.findOne({
+        where: { id: adminIdDto.admin_id },
+      });
+      if (admin.role === 'admin' && staff.role === 'admin') {
+        throw new BadRequestException("Adminni o'chirish mumkin emas!");
       }
       await this.staffRepository.destroy({ where: { id } });
       return { message: "Xodim ro'yxatdan o'chirildi" };

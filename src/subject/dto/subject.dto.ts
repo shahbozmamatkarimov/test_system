@@ -7,7 +7,7 @@ export class SubjectDto {
     example: 'mathematics',
     description: 'subject title',
   })
-  @IsNotEmpty()
-  @IsString()
+  @IsNotEmpty({ message: 'Iltimos, fan nomini kiriting!' })
+  @IsString({ message: 'Fan nomi matn shaklida kiritilishi zarur!' })
   title: string;
 }

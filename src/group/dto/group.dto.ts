@@ -7,8 +7,8 @@ export class GroupDto {
     example: 'group IV',
     description: 'group name',
   })
-  @IsNotEmpty()
-  @IsString()
+  @IsNotEmpty({ message: 'Iltimos, guruh nomini kiriting!' })
+  @IsString({ message: 'Guruh nomi matn shaklida kiritilishi zarur!' })
   name: string;
 
   @ApiProperty({
@@ -16,7 +16,10 @@ export class GroupDto {
     example: '16.02.2015',
     description: 'group start date',
   })
-  @IsNotEmpty()
-  @IsDateString()
+  @IsNotEmpty({ message: 'Iltimos, guruh ochilgan sanani kiriting!' })
+  @IsDateString(
+    {},
+    { message: "Guruh ochilgan sana to'g'ri formatda kiritilishi zarur!" },
+  )
   start_date: Date;
 }

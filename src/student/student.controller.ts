@@ -17,22 +17,23 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Response } from 'express';
 import { LoginDto } from './dto/login.dto';
 import { CookieGetter } from 'src/decorators/cookieGetter.decorator';
-import { IsAdminGuard } from 'src/guards/is-admin.guard';
 import { StudentDto } from './dto/student.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { StudentProfileDto } from './dto/student-profile.dto';
+import { IsAdminGuard } from 'src/guards/is-admin.guard';
+import { UserSelfGuard } from 'src/guards/user-self.guard';
 
 @ApiTags('students')
 @Controller('student')
 export class StudentController {
   constructor(private readonly studentService: StudentService) {}
 
-  @ApiOperation({ summary: 'register of student' })
+  @ApiOperation({ summary: 'create a new student' })
   @UseGuards(IsAdminGuard)
   @UseGuards(AuthGuard)
   @Post('create')
-  @UseInterceptors(FileInterceptor('image'))
-  create(@Body() studentDto: StudentDto, @UploadedFile() image: any) {
-    return this.studentService.create(studentDto, image);
+  create(@Body() studentDto: StudentDto) {
+    return this.studentService.create(studentDto);
   }
 
   @ApiOperation({ summary: 'login of student' })
@@ -42,8 +43,8 @@ export class StudentController {
   }
 
   @ApiOperation({ summary: 'logout of student' })
-  @Post('logout')
   @UseGuards(AuthGuard)
+  @Post('logout')
   logout(
     @CookieGetter('refresh_token') refresh_token: string,
     @Res({ passthrough: true }) res: Response,
@@ -52,51 +53,54 @@ export class StudentController {
   }
 
   @ApiOperation({ summary: 'get all students' })
-  @Get()
   @UseGuards(AuthGuard)
+  @Get()
   findAll() {
     return this.studentService.findAll();
   }
 
   @ApiOperation({ summary: 'get student by email' })
-  @Get(':id')
   @UseGuards(AuthGuard)
-  findById(@Param() id: string) {
-    return this.studentService.findById(id);
-  }
-
-  @ApiOperation({ summary: 'get student by email' })
-  @Get('login')
-  @UseGuards(AuthGuard)
-  findByLogin(@Body() login: string) {
-    return this.studentService.findByLogin(login);
-  }
-
-  @ApiOperation({ summary: 'get student by email' })
   @Get('email')
-  @UseGuards(AuthGuard)
   findByEmail(@Body() email: string) {
     return this.studentService.findByEmail(email);
   }
 
   @ApiOperation({ summary: 'get student by first name' })
-  @Get('fullname')
   @UseGuards(AuthGuard)
+  @Get('fullname')
   findByName(@Body() full_name: string) {
     return this.studentService.findByName(full_name);
+  }
+
+  @ApiOperation({ summary: 'get student by id' })
+  @UseGuards(AuthGuard)
+  @Get(':id')
+  findById(@Param('id') id: string) {
+    return this.studentService.findById(id);
+  }
+
+  @ApiOperation({ summary: 'edit student profile by id' })
+  @UseGuards(UserSelfGuard)
+  @UseGuards(AuthGuard)
+  @Patch('edit/:id')
+  @UseInterceptors(FileInterceptor('image'))
+  editProfile(
+    @Param('id') id: string,
+    @Body() studentProfileDto: StudentProfileDto,
+    @UploadedFile('image') image: any,
+    ) {
+    console.log(image, 'dsjhgfdsafdhkl;🚕🚕🛺');
+    console.log(id);
+    return this.studentService.editProfile(id, studentProfileDto, image);
   }
 
   @ApiOperation({ summary: 'update student by id' })
   @UseGuards(IsAdminGuard)
   @UseGuards(AuthGuard)
   @Patch(':id')
-  @UseInterceptors(FileInterceptor('image'))
-  update(
-    @Param('id') id: string,
-    @Body() studentDto: StudentDto,
-    @UploadedFile() image: any,
-  ) {
-    return this.studentService.update(id, studentDto, image);
+  update(@Param('id') id: string, @Body() studentDto: StudentDto) {
+    return this.studentService.update(id, studentDto);
   }
 
   @ApiOperation({ summary: 'delete student by id' })

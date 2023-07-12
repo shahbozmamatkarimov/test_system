@@ -4,11 +4,20 @@ import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 export class TestResultDto {
   @ApiProperty({
     type: 'string',
+    example: 'A',
+    description: "student'a answer",
+  })
+  @IsNotEmpty({ message: 'Iltimos, javobingizni kiriting!' })
+  @IsString({ message: 'Javob matn shaklida kiritilishi zarur!' })
+  answer: string;
+
+  @ApiProperty({
+    type: 'string',
     example: '1afjkj2lj-asdfj2jk',
     description: 'student id',
   })
-  @IsNotEmpty()
-  @IsString()
+  @IsNotEmpty({ message: 'Iltimos, talaba ID sini kiriting!' })
+  @IsString({ message: "Talaba ID si matn shaklida bo'lishi zarur!" })
   student_id: string;
 
   @ApiProperty({
@@ -16,25 +25,25 @@ export class TestResultDto {
     example: '1',
     description: 'test group id',
   })
-  @IsNotEmpty()
-  @IsNumber()
+  @IsNotEmpty({ message: 'Iltimos, test ID sini kiriting!' })
+  @IsNumber({}, { message: "Test ID si son shaklida bo'lishi zarur!" })
   test_group_id: number;
 
   @ApiProperty({
     type: 'number',
-    example: "['a', 'b', 'c', ...]",
-    description: 'students answers',
+    example: '26',
+    description: 'questtion id',
   })
-  @IsNotEmpty()
-  @IsString()
-  test_result: string;
+  @IsNotEmpty({ message: 'Iltimos, savol ID sini kiriting!' })
+  @IsNumber({}, { message: "Savol ID si son shaklida bo'lishi zarur!" })
+  question_id: number;
 
   @ApiProperty({
     type: 'number',
-    example: '26',
-    description: 'count of correct answers',
+    example: '3',
+    description: 'test time id',
   })
-  @IsNotEmpty()
-  @IsNumber()
-  correct_count: number;
+  @IsNotEmpty({ message: 'Iltimos, test vaqti ID sini kiriting!' })
+  @IsNumber({}, { message: "Test vaqti ID si son shaklida bo'lishi zarur!" })
+  test_time_id: number;
 }

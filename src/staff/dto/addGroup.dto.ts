@@ -7,8 +7,8 @@ export class AddGroupDto {
     example: '1234j-asdf98-adskfja',
     description: 'id of staff',
   })
-  @IsNotEmpty()
-  @IsString()
+  @IsNotEmpty({ message: 'Iltimos, xodim ID sini biriktiring!' })
+  @IsString({ message: "Xodim ID si matn shaklida bo'lishi zarur!" })
   staff_id: string;
 
   @ApiProperty({
@@ -16,7 +16,7 @@ export class AddGroupDto {
     example: '98',
     description: 'name of group',
   })
-  @IsNotEmpty()
-  @IsString()
+  @IsNotEmpty({ message: 'Iltimos, guruh nomini kiriting!' })
+  @IsString({ message: "Guruh nomi matn shaklida bo'lishi zarur!" })
   name: string;
 }

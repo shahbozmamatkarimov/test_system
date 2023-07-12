@@ -15,10 +15,9 @@ async function testSystem() {
     app.use(cookieParser());
     app.setGlobalPrefix('api');
     const config = new DocumentBuilder()
-      .setTitle('Test system')
-      .setDescription('test system api documentation')
+      .setTitle('TATU test system')
+      .setDescription('NodeJs, NestJs, Typescript')
       .setVersion('1.0')
-      .addTag('nodejs', 'nestjs, typescript')
       .build();
     const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('api', app, document);

@@ -73,11 +73,9 @@ export class SubjectService {
         where: { title: subjectDto.title },
       });
       if (exist_title) {
-        throw new BadRequestException('Bunday nomli fan mavjud!');
-      }
-      const subject = this.subjectRepository.findByPk(id);
-      if (!subject) {
-        throw new BadRequestException('Fan topilmadi!');
+        if (exist_title.id != id) {
+          throw new BadRequestException('Bunday nomli fan mavjud!');
+        }
       }
       await this.subjectRepository.update(subjectDto, {
         where: { id },
@@ -91,10 +89,6 @@ export class SubjectService {
 
   async remove(id: number): Promise<object> {
     try {
-      const subject = await this.subjectRepository.findByPk(id);
-      if (!subject) {
-        throw new BadRequestException('Fan topilmadi!');
-      }
       await this.subjectRepository.destroy({ where: { id } });
       return { message: "Fan ro'yxatdan o'chirildi" };
     } catch (error) {

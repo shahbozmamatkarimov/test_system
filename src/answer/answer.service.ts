@@ -10,7 +10,7 @@ export class AnswerService {
   async create(answerDto: AnswerDto): Promise<object> {
     try {
       await this.answerRepository.create(answerDto);
-      return { message: "Javob ro'yxatga qo'shildi" };
+      return { message: "Javob variantlari qo'shildi" };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -44,10 +44,6 @@ export class AnswerService {
 
   async update(id: number, answerDto: AnswerDto): Promise<object> {
     try {
-      const answer = await this.answerRepository.findByPk(id);
-      if (!answer) {
-        throw new BadRequestException('Javob topilmadi!');
-      }
       await this.answerRepository.update(answerDto, {
         where: { id },
         returning: true,
@@ -60,12 +56,16 @@ export class AnswerService {
 
   async remove(id: number): Promise<object> {
     try {
-      const answer = await this.answerRepository.findByPk(id);
-      if (!answer) {
-        throw new BadRequestException('Javob topilmadi!');
-      }
       await this.answerRepository.destroy({ where: { id } });
-      return { message: "Javob ro'yxatdan o'chirildi" };
+      return { message: "Javob o'chirildi" };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async delete(question_id: number) {
+    try {
+      await this.answerRepository.destroy({ where: { question_id } });
     } catch (error) {
       throw new BadRequestException(error.message);
     }

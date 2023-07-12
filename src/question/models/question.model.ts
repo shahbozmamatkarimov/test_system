@@ -33,7 +33,6 @@ export class Question extends Model<Question, QuestionAttributes> {
   @ForeignKey(() => TestGroup)
   @Column({
     type: DataType.INTEGER,
-    allowNull: false,
   })
   test_group_id: number;
 

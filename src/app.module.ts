@@ -3,7 +3,6 @@ import { ConfigModule } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { resolve } from 'path';
-import { RoleModule } from './role/role.module';
 import { StaffModule } from './staff/staff.module';
 import { FilesModule } from './files/files.module';
 import { SubjectModule } from './subject/subject.module';
@@ -13,6 +12,8 @@ import { QuestionModule } from './question/question.module';
 import { TestGroupModule } from './test-group/test-group.module';
 import { AnswerModule } from './answer/answer.module';
 import { TestResultModule } from './test-result/test-result.module';
+import { TestTimeModule } from './test-time/test-time.module';
+import { TestSubmitModule } from './test-submit/test-submit.module';
 
 @Module({
   imports: [
@@ -31,7 +32,6 @@ import { TestResultModule } from './test-result/test-result.module';
       autoLoadModels: true,
       logging: true,
     }),
-    RoleModule,
     StaffModule,
     FilesModule,
     SubjectModule,
@@ -41,6 +41,8 @@ import { TestResultModule } from './test-result/test-result.module';
     TestGroupModule,
     AnswerModule,
     TestResultModule,
+    TestTimeModule,
+    TestSubmitModule,
   ],
 })
 export class AppModule {}

@@ -6,14 +6,17 @@ import {
   Model,
   Table,
 } from 'sequelize-typescript';
+import { Question } from 'src/question/models/question.model';
 import { Student } from 'src/student/models/student.model';
 import { TestGroup } from 'src/test-group/models/test-group.model';
+import { TestTime } from 'src/test-time/models/test-time.model';
 
 interface TestResultAttributes {
+  answer: string;
   student_id: string;
   test_group_id: number;
-  test_result: string;
-  correct_count: number;
+  question_id: number;
+  test_time_id: number;
 }
 
 @Table({ tableName: 'test-result' })
@@ -25,35 +28,45 @@ export class TestResult extends Model<TestResult, TestResultAttributes> {
   })
   id: number;
 
-  @ForeignKey(() => Student)
   @Column({
     type: DataType.STRING,
     allowNull: false,
+  })
+  answer: string;
+
+  @ForeignKey(() => Student)
+  @Column({
+    type: DataType.UUID,
   })
   student_id: string;
 
   @ForeignKey(() => TestGroup)
   @Column({
     type: DataType.INTEGER,
-    allowNull: false,
   })
   test_group_id: number;
 
-  @Column({
-    type: DataType.STRING,
-    allowNull: false,
-  })
-  test_result: string;
-
+  @ForeignKey(() => Question)
   @Column({
     type: DataType.INTEGER,
-    allowNull: false,
   })
-  correct_answers: number;
+  question_id: number;
+
+  @ForeignKey(() => TestTime)
+  @Column({
+    type: DataType.INTEGER,
+  })
+  test_time_id: number;
 
   @BelongsTo(() => Student)
   student: Student;
 
   @BelongsTo(() => TestGroup)
   test_group: TestGroup;
+
+  @BelongsTo(() => Question)
+  question: Question;
+
+  @BelongsTo(() => TestTime)
+  test_time: TestTime;
 }

@@ -7,42 +7,54 @@ import {
 } from 'sequelize-typescript';
 import { Group } from 'src/group/models/group.model';
 import { StaffGroup } from 'src/group/models/staff-group.model';
-import { Role } from 'src/role/models/role.model';
-import { StaffRole } from 'src/role/models/staff-role.model';
 import { StaffSubject } from 'src/subject/models/staff-subject.model';
 import { Subject } from 'src/subject/models/subject.model';
 
 interface StaffAttributes {
   id: string;
-  full_name: string;
-  image: string;
-  phone_number: string;
-  email: string;
   login: string;
   hashed_password: string;
+  role: string;
+  full_name: string;
+  phone_number: string;
+  email: string;
   telegram_username: string;
+  image: string;
 }
 
 @Table({ tableName: 'staff' })
 export class Staff extends Model<Staff, StaffAttributes> {
   @Column({
-    type: DataType.STRING,
+    type: DataType.UUID,
+    defaultValue: DataType.UUIDV4,
     primaryKey: true,
-    allowNull: false,
-    unique: true,
   })
   id: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: false,
+    unique: true,
   })
-  full_name: string;
+  login: string;
 
   @Column({
     type: DataType.STRING,
+    allowNull: false,
   })
-  image: string;
+  hashed_password: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  role: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  full_name: string;
 
   @Column({
     type: DataType.STRING,
@@ -58,25 +70,14 @@ export class Staff extends Model<Staff, StaffAttributes> {
 
   @Column({
     type: DataType.STRING,
-    allowNull: false,
-    unique: true,
-  })
-  login: string;
-
-  @Column({
-    type: DataType.STRING,
-    allowNull: false,
-  })
-  hashed_password: string;
-
-  @Column({
-    type: DataType.STRING,
     unique: true,
   })
   telegram_username: string;
 
-  @BelongsToMany(() => Role, () => StaffRole)
-  roles: Role[];
+  @Column({
+    type: DataType.STRING,
+  })
+  image: string;
 
   @BelongsToMany(() => Subject, () => StaffSubject)
   subjects: Subject[];

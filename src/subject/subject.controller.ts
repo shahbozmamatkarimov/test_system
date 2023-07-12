@@ -10,9 +10,9 @@ import {
 } from '@nestjs/common';
 import { SubjectService } from './subject.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { IsAdminGuard } from 'src/guards/is-admin.guard';
 import { SubjectDto } from './dto/subject.dto';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { IsAdminGuard } from 'src/guards/is-admin.guard';
 
 @ApiTags('subjects')
 @Controller('subject')
@@ -28,24 +28,24 @@ export class SubjectController {
   }
 
   @ApiOperation({ summary: 'get all subjects' })
-  @Get()
   @UseGuards(AuthGuard)
+  @Get()
   findAll() {
     return this.subjectService.findAll();
   }
 
-  @ApiOperation({ summary: 'get subject by id' })
-  @Get(':id')
-  @UseGuards(AuthGuard)
-  findById(@Param('id') id: number) {
-    return this.subjectService.findById(id);
-  }
-
   @ApiOperation({ summary: 'get subject by title' })
-  @Get('title')
   @UseGuards(AuthGuard)
+  @Get('title')
   findByTitle(@Body() title: string) {
     return this.subjectService.findByTitle(title);
+  }
+
+  @ApiOperation({ summary: 'get subject by id' })
+  @UseGuards(AuthGuard)
+  @Get(':id')
+  findById(@Param('id') id: number) {
+    return this.subjectService.findById(id);
   }
 
   @ApiOperation({ summary: 'update subject by id' })

@@ -19,7 +19,7 @@ export class StaffGroup extends Model<StaffGroup> {
 
   @ForeignKey(() => Staff)
   @Column({
-    type: DataType.STRING,
+    type: DataType.UUID,
   })
   staff_id: string;
 

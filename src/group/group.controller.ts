@@ -11,8 +11,8 @@ import {
 import { GroupService } from './group.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { GroupDto } from './dto/group.dto';
-import { IsAdminGuard } from 'src/guards/is-admin.guard';
 import { AuthGuard } from 'src/guards/auth.guard';
+import { IsAdminGuard } from 'src/guards/is-admin.guard';
 
 @ApiTags('groups')
 @Controller('group')
@@ -28,10 +28,24 @@ export class GroupController {
   }
 
   @ApiOperation({ summary: 'get all groups' })
-  @Get()
   @UseGuards(AuthGuard)
+  @Get()
   findAll() {
     return this.groupService.findAll();
+  }
+
+  @ApiOperation({ summary: 'get group by name' })
+  @UseGuards(AuthGuard)
+  @Get('name')
+  findByName(@Body() name: string) {
+    return this.groupService.findByName(name);
+  }
+
+  @ApiOperation({ summary: 'get group by start date' })
+  @UseGuards(AuthGuard)
+  @Get('startdate')
+  findByStartDate(@Body() start_date: Date) {
+    return this.groupService.findByStartDate(start_date);
   }
 
   @ApiOperation({ summary: 'get group by id' })
@@ -39,20 +53,6 @@ export class GroupController {
   @Get(':id')
   findById(@Param('id') id: number) {
     return this.groupService.findById(id);
-  }
-
-  @ApiOperation({ summary: 'get group by name' })
-  @Get('name')
-  @UseGuards(AuthGuard)
-  findByName(@Body() name: string) {
-    return this.groupService.findByName(name);
-  }
-
-  @ApiOperation({ summary: 'get group by start date' })
-  @Get('startdate')
-  @UseGuards(AuthGuard)
-  findByStartDate(@Body() start_date: Date) {
-    return this.groupService.findByStartDate(start_date);
   }
 
   @ApiOperation({ summary: 'udpate group by id' })

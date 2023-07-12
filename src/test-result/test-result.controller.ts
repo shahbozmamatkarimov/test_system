@@ -11,7 +11,6 @@ import {
 import { TestResultService } from './test-result.service';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { TestResultDto } from './dto/test-result.dto';
-import { IsAdminGuard } from 'src/guards/is-admin.guard';
 import { AuthGuard } from 'src/guards/auth.guard';
 
 @ApiTags('test-results')
@@ -20,7 +19,6 @@ export class TestResultController {
   constructor(private readonly testResultService: TestResultService) {}
 
   @ApiOperation({ summary: 'create a new test result' })
-  @UseGuards(IsAdminGuard)
   @UseGuards(AuthGuard)
   @Post()
   create(@Body() testResultDto: TestResultDto) {
@@ -28,21 +26,27 @@ export class TestResultController {
   }
 
   @ApiOperation({ summary: 'get all test results' })
-  @Get()
   @UseGuards(AuthGuard)
+  @Get()
   findAll() {
     return this.testResultService.findAll();
   }
 
-  @ApiOperation({ summary: 'get test result by id' })
-  @Get(':id')
+  @ApiOperation({ summary: 'get test result by student id' })
   @UseGuards(AuthGuard)
+  @Get('studentId/:id')
+  findByStudentId(@Param('id') id: string) {
+    return this.testResultService.findByStudentId(id);
+  }
+
+  @ApiOperation({ summary: 'get test result by id' })
+  @UseGuards(AuthGuard)
+  @Get(':id')
   findOne(@Param('id') id: number) {
     return this.testResultService.findOne(id);
   }
 
   @ApiOperation({ summary: 'update test result by id' })
-  @UseGuards(IsAdminGuard)
   @UseGuards(AuthGuard)
   @Patch(':id')
   update(@Param('id') id: number, @Body() testResultDto: TestResultDto) {
@@ -50,7 +54,6 @@ export class TestResultController {
   }
 
   @ApiOperation({ summary: 'delete test result by id' })
-  @UseGuards(IsAdminGuard)
   @UseGuards(AuthGuard)
   @Delete(':id')
   remove(@Param('id') id: number) {
