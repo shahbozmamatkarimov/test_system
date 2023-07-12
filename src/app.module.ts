@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { ServeStaticModule } from '@nestjs/serve-static';
+import { ServeStaticModule } from '@nestjs/serve-static'
 import { resolve } from 'path';
 import { StaffModule } from './staff/staff.module';
 import { FilesModule } from './files/files.module';
@@ -26,7 +26,7 @@ import { TestSubmitModule } from './test-submit/test-submit.module';
       host: process.env.POSTGRES_HOST,
       port: Number(process.env.POSTGRES_PORT),
       username: process.env.POSTGRES_USER,
-      password: String(process.env.POSTGRES_PASS),
+      password: process.env.POSTGRES_PASS,
       database: process.env.POSTGRES_DB,
       models: [],
       autoLoadModels: true,

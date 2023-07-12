@@ -80,6 +80,14 @@ export class StudentController {
     return this.studentService.findById(id);
   }
 
+  @ApiOperation({ summary: 'update student by id' })
+  @UseGuards(IsAdminGuard)
+  @UseGuards(AuthGuard)
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() studentDto: StudentDto) {
+    return this.studentService.update(id, studentDto);
+  }
+
   @ApiOperation({ summary: 'edit student profile by id' })
   @UseGuards(UserSelfGuard)
   @UseGuards(AuthGuard)
@@ -89,18 +97,8 @@ export class StudentController {
     @Param('id') id: string,
     @Body() studentProfileDto: StudentProfileDto,
     @UploadedFile('image') image: any,
-    ) {
-    console.log(image, 'dsjhgfdsafdhkl;🚕🚕🛺');
-    console.log(id);
+  ) {
     return this.studentService.editProfile(id, studentProfileDto, image);
-  }
-
-  @ApiOperation({ summary: 'update student by id' })
-  @UseGuards(IsAdminGuard)
-  @UseGuards(AuthGuard)
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() studentDto: StudentDto) {
-    return this.studentService.update(id, studentDto);
   }
 
   @ApiOperation({ summary: 'delete student by id' })

@@ -370,30 +370,24 @@ export class StaffService {
       const exist_phone = await this.staffRepository.findOne({
         where: { phone_number },
       });
-      if (exist_phone) {
-        if (exist_phone.id != staff.id) {
-          throw new BadRequestException('Bu telefon raqam band!');
-        }
+      if (exist_phone.id != staff.id) {
+        throw new BadRequestException('Bu telefon raqam band!');
       }
     }
     if (email) {
       const exist_email = await this.staffRepository.findOne({
         where: { email },
       });
-      if (exist_email) {
-        if (exist_email.id != staff.id) {
-          throw new BadRequestException('Bu email band!');
-        }
+      if (exist_email.id != staff.id) {
+        throw new BadRequestException('Bu email band!');
       }
     }
     if (telegram_username) {
       const exist_telegram = await this.staffRepository.findOne({
         where: { telegram_username },
       });
-      if (exist_telegram) {
-        if (exist_telegram.id != staff.id) {
-          throw new BadRequestException('Bu telegram username band!');
-        }
+      if (exist_telegram.id != staff.id) {
+        throw new BadRequestException('Bu telegram username band!');
       }
     }
     if (image) {
